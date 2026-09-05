@@ -127,20 +127,20 @@ export const EmployeesPage: React.FC = () => {
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
         <div>
-          <h1 className="text-xl font-bold text-[#17233D]">Employees</h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <h1 className="text-xl font-bold text-[#17233D] dark:text-white">Employees</h1>
+          <p className="text-xs text-slate-500 dark:text-slate-300 mt-0.5">
             All active personnel records, work information, and smart sub-resources
           </p>
         </div>
         <div className="flex items-center gap-3">
           {/* View Switcher Toggle */}
-          <div className="flex items-center bg-white rounded-md p-1 shadow-none border-0">
+          <div className="flex items-center bg-white dark:bg-[#1A1A1F] rounded-lg p-1 border border-gray-200/80 dark:border-[#2D2D36] shadow-none">
             <button
               onClick={() => setSearchParams({ view: 'kanban' })}
               className={`p-2 rounded-md transition-all duration-150 ${
                 currentView === 'kanban'
                   ? 'bg-[#3B82F6] text-white shadow-none'
-                  : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
+                  : 'text-gray-500 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#262630]'
               }`}
               title="Kanban View"
             >
@@ -151,7 +151,7 @@ export const EmployeesPage: React.FC = () => {
               className={`p-2 rounded-md transition-all duration-150 ${
                 currentView === 'list'
                   ? 'bg-[#3B82F6] text-white shadow-none'
-                  : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
+                  : 'text-gray-500 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#262630]'
               }`}
               title="List View"
             >
@@ -172,28 +172,28 @@ export const EmployeesPage: React.FC = () => {
       </div>
 
       {/* Filters Bar */}
-      <div className="bg-white rounded-lg p-3 mb-6 flex flex-wrap items-center justify-between gap-3 shadow-none border-0">
+      <div className="bg-white dark:bg-[#1A1A1F] rounded-xl p-3 mb-6 flex flex-wrap items-center justify-between gap-3 border border-gray-200/80 dark:border-[#2D2D36] shadow-none">
         <div className="relative flex-1 min-w-[240px]">
-          <Search className="w-4 h-4 absolute left-3.5 top-3 text-gray-400 stroke-[2.2]" />
+          <Search className="w-4 h-4 absolute left-3.5 top-3 text-gray-400 dark:text-slate-400 stroke-[2.2]" />
           <input
             type="text"
             placeholder="Search by name, role, email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 h-10 text-xs bg-[#F3F4F6] border-0 rounded-md outline-none text-[#111827] focus:bg-white focus:border-2 focus:border-[#3B82F6] transition-all"
+            className="w-full pl-10 pr-4 h-10 text-xs bg-[#F3F4F6] dark:bg-[#121215] border border-transparent dark:border-[#2D2D36] rounded-md outline-none text-[#111827] dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:bg-white dark:focus:bg-[#16161B] focus:border-2 focus:border-[#3B82F6] transition-all"
           />
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">Department:</span>
+          <span className="text-xs font-bold text-gray-700 dark:text-slate-200 uppercase tracking-wider">Department:</span>
           <select
             value={deptFilter}
             onChange={(e) => setDeptFilter(e.target.value)}
-            className="text-xs font-semibold border-0 rounded-md px-3 h-10 bg-[#F3F4F6] text-[#111827] outline-none focus:bg-white focus:border-2 focus:border-[#3B82F6]"
+            className="text-xs font-semibold border border-transparent dark:border-[#2D2D36] rounded-md px-3 h-10 bg-[#F3F4F6] dark:bg-[#121215] text-[#111827] dark:text-white outline-none focus:bg-white dark:focus:bg-[#16161B] focus:border-2 focus:border-[#3B82F6]"
           >
             <option value="ALL">All Departments</option>
             {departments.map((d) => (
-              <option key={d} value={d}>
+              <option key={d} value={d} className="dark:bg-[#16161B] dark:text-white">
                 {d}
               </option>
             ))}

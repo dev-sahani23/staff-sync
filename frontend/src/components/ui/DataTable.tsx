@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
+import { ChevronUp, ChevronDown, ChevronsUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { EmptyState } from './EmptyState';
 
 export interface Column<T> {
@@ -17,6 +17,7 @@ interface DataTableProps<T> {
   keyExtractor: (row: T) => string;
   onRowClick?: (row: T) => void;
   isLoading?: boolean;
+  pageSize?: number;
   emptyTitle?: string;
   emptyDescription?: string;
   emptyActionText?: string;
@@ -30,6 +31,7 @@ export function DataTable<T>({
   keyExtractor,
   onRowClick,
   isLoading = false,
+  pageSize = 12,
   emptyTitle = 'No records found',
   emptyDescription = 'There are no items to display in this list.',
   emptyActionText,
@@ -38,6 +40,7 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [currentPage, setCurrentPage] = useState(1);
 
   const handleSort = (key: string) => {
     if (sortKey === key) {
@@ -67,6 +70,17 @@ export function DataTable<T>({
         : String(valB).localeCompare(String(valA));
     });
   }, [data, sortKey, sortOrder]);
+
+  const totalPages = Math.max(1, Math.ceil(sortedData.length / pageSize));
+  const safePage = Math.min(currentPage, totalPages);
+
+  const paginatedData = useMemo(() => {
+    const start = (safePage - 1) * pageSize;
+    return sortedData.slice(start, start + pageSize);
+  }, [sortedData, safePage, pageSize]);
+
+  const startIndex = (safePage - 1) * pageSize + 1;
+  const endIndex = Math.min(safePage * pageSize, sortedData.length);
 
   if (isLoading) {
     return (
@@ -132,7 +146,7 @@ export function DataTable<T>({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 font-normal">
-            {sortedData.map((row) => (
+            {paginatedData.map((row) => (
               <tr
                 key={keyExtractor(row)}
                 onClick={() => onRowClick?.(row)}
@@ -155,6 +169,45 @@ export function DataTable<T>({
           </tbody>
         </table>
       </div>
+
+      {/* Pagination Footer */}
+      {sortedData.length > 0 && (
+        <div className="px-4 py-3 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3 text-xs text-gray-500">
+          <div>
+            Showing <span className="font-bold text-gray-800">{startIndex}</span> to{' '}
+            <span className="font-bold text-gray-800">{endIndex}</span> of{' '}
+            <span className="font-bold text-gray-800">{sortedData.length}</span> records
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={safePage <= 1}
+                className="p-1.5 rounded-md border border-gray-200 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                title="Previous Page"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+
+              <div className="px-2 font-semibold text-gray-700">
+                Page {safePage} of {totalPages}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={safePage >= totalPages}
+                className="p-1.5 rounded-md border border-gray-200 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                title="Next Page"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

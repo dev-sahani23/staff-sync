@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth, ROLE_LABELS } from '@/lib/auth-store';
 import { usePermissions } from '@/lib/permissions';
 import { AttendanceWidget } from './AttendanceWidget';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -28,21 +29,21 @@ export const TopNav: React.FC = () => {
     `inline-flex items-center gap-1 text-sm font-semibold transition-all duration-200 cursor-pointer py-1.5 px-3 rounded-md shadow-none hover:scale-105 ${
       active
         ? 'bg-[#3B82F6] text-white'
-        : 'text-gray-700 hover:text-[#111827] hover:bg-gray-100'
+        : 'text-gray-700 dark:text-gray-300 hover:text-[#111827] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800'
     }`;
 
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-40 px-6 py-3 flex items-center justify-between shadow-none">
+    <header className="bg-white dark:bg-[#1E293B] border-b border-gray-200 dark:border-slate-800 sticky top-0 z-40 px-6 py-3 flex items-center justify-between shadow-none transition-colors">
       <div className="flex items-center gap-6">
         {/* Brand / Logo */}
         <Link
           to={isEmployee ? `/employees/${user?.employeeId}` : '/payroll'}
-          className="flex items-center gap-2.5 font-bold text-base text-[#111827] group"
+          className="flex items-center gap-2.5 font-bold text-base text-[#111827] dark:text-white group"
         >
           <div className="w-8 h-8 rounded-md bg-[#3B82F6] text-white flex items-center justify-center font-extrabold text-sm tracking-tight group-hover:bg-blue-600 transition-all duration-200 shadow-none">
             HR
           </div>
-          <span className="tracking-tight text-gray-900 font-extrabold text-lg">PeoplePay360</span>
+          <span className="tracking-tight text-gray-900 dark:text-white font-extrabold text-lg">PeoplePay360</span>
         </Link>
 
         {/* Global Navigation Menu */}
@@ -201,17 +202,20 @@ export const TopNav: React.FC = () => {
       </div>
 
       {/* Right User & Actions Bar */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5">
+        {/* Dark / Light Mode Toggle */}
+        <ThemeToggle />
+
         {/* Floating Attendance Widget */}
         <AttendanceWidget />
 
         {/* User Badge */}
         {user && (
           <div className="hidden sm:flex flex-col text-right pr-1">
-            <span className="text-xs font-bold text-[#111827] truncate max-w-[150px]">
+            <span className="text-xs font-bold text-[#111827] dark:text-gray-100 truncate max-w-[150px]">
               {user.email}
             </span>
-            <span className="text-[10px] font-bold text-[#3B82F6] uppercase tracking-wider">
+            <span className="text-[10px] font-bold text-[#3B82F6] dark:text-blue-400 uppercase tracking-wider">
               {ROLE_LABELS[user.role] || user.role}
             </span>
           </div>
@@ -220,7 +224,7 @@ export const TopNav: React.FC = () => {
         {/* Logout Button */}
         <button
           onClick={logout}
-          className="p-2 rounded-md text-gray-500 hover:text-[#EF4444] hover:bg-rose-50 hover:scale-105 transition-all duration-200 shadow-none border-0"
+          className="p-2 rounded-md text-gray-500 dark:text-gray-400 hover:text-[#EF4444] dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:scale-105 transition-all duration-200 shadow-none border-0"
           title="Sign out"
         >
           <LogOut className="w-4 h-4 stroke-[2.2]" />

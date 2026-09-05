@@ -18,6 +18,21 @@
 
     --radius: 0.5rem;
   }
+
+  .dark {
+    color-scheme: dark;
+    --ink: #F9FAFB;
+    --surface: #1E293B;
+    --surface-muted: #0F172A;
+    --line: #334155;
+    --primary: #3B82F6;
+    --accent: #60A5FA;
+    --accent-soft: #1E3A8A;
+    --secondary: #10B981;
+    --positive: #34D399;
+    --warning: #FBBF24;
+    --critical: #F87171;
+  }
 }
 
 @layer base {
@@ -31,10 +46,104 @@
     font-family: 'Outfit', sans-serif;
     -webkit-font-smoothing: antialiased;
   }
+  .dark body {
+    background-color: #0F172A;
+    color: #F9FAFB;
+  }
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Outfit', sans-serif;
     letter-spacing: -0.02em;
   }
+}
+
+/* Comprehensive Dark Mode Theme Overrides */
+.dark .bg-white {
+  background-color: #1E293B !important;
+}
+
+.dark .bg-\[\#F3F4F6\],
+.dark .bg-\[\#F8F9FA\],
+.dark .bg-gray-50,
+.dark .bg-gray-100 {
+  background-color: #0F172A !important;
+}
+
+.dark .hover\:bg-gray-50:hover,
+.dark .hover\:bg-gray-100:hover,
+.dark .hover\:bg-blue-50:hover,
+.dark .hover\:bg-blue-50\/50:hover,
+.dark .hover\:bg-blue-50\/70:hover,
+.dark .hover\:bg-blue-50\/80:hover {
+  background-color: #334155 !important;
+}
+
+.dark .text-\[\#111827\],
+.dark .text-\[\#17233D\],
+.dark .text-gray-900,
+.dark .text-gray-800 {
+  color: #F8FAFC !important;
+}
+
+.dark .text-gray-700,
+.dark .text-gray-600 {
+  color: #CBD5E1 !important;
+}
+
+.dark .text-gray-500,
+.dark .text-gray-400 {
+  color: #94A3B8 !important;
+}
+
+.dark .border-gray-100,
+.dark .border-gray-200,
+.dark .border-gray-200\/50,
+.dark .border-gray-200\/60,
+.dark .border-gray-200\/70,
+.dark .border-gray-200\/80,
+.dark .border-gray-300,
+.dark .border {
+  border-color: #334155 !important;
+}
+
+.dark .divide-gray-100 > * + *,
+.dark .divide-gray-200 > * + * {
+  border-color: #334155 !important;
+}
+
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: #0F172A !important;
+  color: #F8FAFC !important;
+  border-color: #334155 !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #64748B !important;
+}
+
+.dark thead {
+  background-color: #0F172A !important;
+  color: #94A3B8 !important;
+  border-color: #334155 !important;
+}
+
+.dark tr:hover {
+  background-color: rgba(59, 130, 246, 0.12) !important;
+}
+
+.dark [role="menu"],
+.dark [data-radix-menu-content] {
+  background-color: #1E293B !important;
+  border-color: #334155 !important;
+  color: #F8FAFC !important;
+}
+
+.dark [role="menuitem"]:hover,
+.dark [role="menuitem"]:focus {
+  background-color: #334155 !important;
+  color: #F8FAFC !important;
 }
 
 /* Tabular figures utility for monetary and numeric tables */
@@ -56,4 +165,14 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #94A3B8;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #0F172A;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
 }
