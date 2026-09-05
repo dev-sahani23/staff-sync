@@ -1,11 +1,19 @@
 import { useParams } from 'react-router-dom';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Input } from '@/components/ui/input';
-import { getContractById } from '@/data/mockContracts';
+import { ContractAPI } from '@/api/api';
+import { useEffect, useState } from 'react';
 
 export function ContractDetail() {
     const { id } = useParams();
-    const contract = getContractById(id) || getContractById('1')!; // Fallback strictly to mock requirement
+    const [contract, setContract] = useState<any>(null);
+
+    useEffect(() => {
+        if (!id) return;
+        ContractAPI.getById(id).then(setContract).catch(console.error);
+    }, [id]);
+
+    if (!contract) return <div className="p-12 text-slate-500 font-medium">Loading contract metrics...</div>;
 
     return (
         <div className="w-full font-sans pb-12 max-w-[1000px]">

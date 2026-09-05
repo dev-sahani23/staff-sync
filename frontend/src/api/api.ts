@@ -1,0 +1,118 @@
+import axios from 'axios';
+
+export const api = axios.create({
+    baseURL: 'http://localhost:3000/api',
+    timeout: 10000,
+    headers: {
+        'Content-Type': 'application/json',
+    }
+});
+
+// We adapt backend Database Schema payloads into our UI specific parameters flawlessly here
+export const EmployeeAPI = {
+    getAll: async () => {
+        const response = await api.get('/employees');
+        return response.data.map((emp: any) => ({
+            id: emp.id,
+            name: `${emp.firstName} ${emp.lastName}`,
+            email: emp.email,
+            initials: `${emp.firstName?.charAt(0) || ''}${emp.lastName?.charAt(0) || ''}`,
+            role: emp.jobPosition || 'Employee',
+            department: emp.department || 'General',
+            status: emp.status === 'ACTIVE' ? 'Active' : 'On Leave',
+            phone: emp.phone || 'N/A',
+            manager: emp.manager?.firstName ? `${emp.manager.firstName} ${emp.manager.lastName}` : 'N/A',
+            schedule: '40 Hours / Week',
+            location: 'Mumbai',
+            company: 'OXP Pvt Ltd'
+        }));
+    },
+    create: async (data: any) => {
+        const payload = {
+            firstName: data.name?.split(' ')[0] || 'Unknown',
+            lastName: data.name?.split(' ').slice(1).join(' ') || 'Employee',
+            email: data.email,
+            jobPosition: data.role,
+            department: data.department,
+            status: data.status === 'Active' ? 'ACTIVE' : 'INACTIVE',
+            phone: data.phone
+        };
+        const response = await api.post('/employees', payload);
+        return response.data;
+    },
+    getById: async (id: string) => {
+        const response = await api.get(`/employees/${id}`);
+        const emp = response.data;
+        return {
+            id: emp.id,
+            name: `${emp.firstName} ${emp.lastName}`,
+            email: emp.email,
+            initials: `${emp.firstName?.charAt(0) || ''}${emp.lastName?.charAt(0) || ''}`,
+            role: emp.jobPosition || 'Employee',
+            department: emp.department || 'General',
+            status: emp.status === 'ACTIVE' ? 'Active' : 'On Leave',
+            phone: emp.phone || 'N/A',
+            manager: emp.manager?.firstName ? `${emp.manager.firstName} ${emp.manager.lastName}` : 'N/A',
+            schedule: '40 Hours / Week',
+            location: 'Mumbai',
+            company: 'OXP Pvt Ltd'
+        };
+    }
+};
+
+export const ContractAPI = {
+    getAll: async () => {
+        const response = await api.get('/contracts');
+        return response.data.map((con: any) => ({
+            id: con.id,
+            contractCode: `CON/${new Date(con.createdAt).getFullYear()}/${con.id.substring(0, 4).toUpperCase()}`,
+            employeeName: con.employee ? `${con.employee.firstName} ${con.employee.lastName}` : 'Unknown',
+            start: new Date(con.startDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+            end: con.endDate ? new Date(con.endDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—',
+            wage: `₹${con.wage?.toLocaleString('en-IN')}`,
+            status: con.status === 'ACTIVE' ? 'Running' : 'Expired',
+            department: con.department || 'General',
+            jobPosition: con.jobPosition || 'Analyst',
+            schedule: '40 Hours / Week',
+            notes: 'Structure Type: Employee Salary\nSuccessfully synced from backend SQL Database.',
+        }));
+    },
+    getById: async (id: string) => {
+        const response = await api.get(`/contracts/${id}`);
+        const con = response.data;
+        return {
+            id: con.id,
+            contractCode: `CON/${new Date(con.createdAt).getFullYear()}/${con.id.substring(0, 4).toUpperCase()}`,
+            employeeName: con.employee ? `${con.employee.firstName} ${con.employee.lastName}` : 'Unknown',
+            start: new Date(con.startDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+            end: con.endDate ? new Date(con.endDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—',
+            wage: `₹${con.wage?.toLocaleString('en-IN')}`,
+            status: con.status === 'ACTIVE' ? 'Running' : 'Expired',
+            department: con.department || 'General',
+            jobPosition: con.jobPosition || 'Analyst',
+            schedule: '40 Hours / Week',
+            notes: 'Structure Type: Employee Salary\nSuccessfully synced from backend SQL Database.',
+        };
+    }
+};
+
+export const AttendanceAPI = {
+    getAll: async () => {
+        const response = await api.get('/attendance');
+        return response.data.map((att: any) => {
+            const getStr = (d: string) => {
+                if (!d) return '—';
+                const date = new Date(d);
+                return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+            };
+            return {
+                id: att.id,
+                employeeName: att.employee ? `${att.employee.firstName} ${att.employee.lastName}` : 'Unknown',
+                checkIn: getStr(att.checkIn),
+                checkOut: getStr(att.checkOut),
+                workedHours: att.workedHours ? att.workedHours.toFixed(2) : '0.00',
+                status: att.status === 'PRESENT' ? 'Present' : 'Absent',
+            };
+        });
+    }
+};

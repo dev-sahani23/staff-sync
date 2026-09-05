@@ -4,9 +4,10 @@ import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { DataTable } from '@/components/ui/data-table';
 import { type ColumnDef } from '@tanstack/react-table';
-import { mockAttendance, type AttendanceRecord } from '@/data/mockAttendance';
+import { AttendanceAPI } from '@/api/api';
+import { useEffect, useState } from 'react';
 
-const columns: ColumnDef<AttendanceRecord>[] = [
+const columns: ColumnDef<any>[] = [
     {
         accessorKey: "employeeName",
         header: "Employee",
@@ -38,6 +39,12 @@ const columns: ColumnDef<AttendanceRecord>[] = [
 ];
 
 export function Attendance() {
+    const [records, setRecords] = useState<any[]>([]);
+
+    useEffect(() => {
+        AttendanceAPI.getAll().then(setRecords).catch(console.error);
+    }, []);
+
     return (
         <div className="w-full font-sans max-w-[1000px]">
             <PageHeader
@@ -70,7 +77,7 @@ export function Attendance() {
             <div className="pb-12 mt-8">
                 <DataTable
                     columns={columns}
-                    data={mockAttendance}
+                    data={records}
                     searchKey="employeeName"
                 />
             </div>

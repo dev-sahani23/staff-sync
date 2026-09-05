@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { DataTable } from '@/components/ui/data-table';
 import { type ColumnDef } from '@tanstack/react-table';
-import { mockContracts, type Contract } from '@/data/mockContracts';
+import { ContractAPI } from '@/api/api';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const columns: ColumnDef<Contract>[] = [
+const columns: ColumnDef<any>[] = [
     {
         accessorKey: "contractCode",
         header: "Contract",
@@ -44,7 +45,11 @@ const columns: ColumnDef<Contract>[] = [
 
 export function Contracts() {
     const navigate = useNavigate();
-    const contracts = mockContracts;
+    const [contracts, setContracts] = useState<any[]>([]);
+
+    useEffect(() => {
+        ContractAPI.getAll().then(setContracts).catch(console.error);
+    }, []);
 
     return (
         <div className="w-full font-sans max-w-[1000px]">

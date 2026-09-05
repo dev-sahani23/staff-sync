@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { DataTable } from '@/components/ui/data-table';
 import { type ColumnDef } from '@tanstack/react-table';
-import { mockEmployees, type Employee } from '@/data/mockEmployees';
+import { EmployeeAPI } from '@/api/api';
+import { useEffect } from 'react';
 
-const columns: ColumnDef<Employee>[] = [
+const columns: ColumnDef<any>[] = [
     {
         accessorKey: "name",
         header: "Employee",
@@ -39,9 +40,11 @@ export function Employees() {
     const [view, setView] = useState<'kanban' | 'list'>('kanban');
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
+    const [employees, setEmployees] = useState<any[]>([]);
 
-    // Retrieve from our globally simulated store! 
-    const employees = mockEmployees;
+    useEffect(() => {
+        EmployeeAPI.getAll().then(setEmployees).catch(console.error);
+    }, []);
 
     // Filter by search term natively
     const filteredEmployees = employees.filter(emp => emp.name.toLowerCase().includes(searchTerm.toLowerCase()));

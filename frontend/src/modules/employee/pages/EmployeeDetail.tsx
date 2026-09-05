@@ -1,30 +1,54 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
-import { getEmployeeById, addEmployee, type Employee } from '@/data/mockEmployees';
+import { EmployeeAPI } from '@/api/api';
 
 export function EmployeeDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
     const isNew = id === 'new';
 
-    // Fetch from global array, or use a blank template if id === 'new'
-    const initialEmployee: Employee = isNew ? {
+    // Fallback static template to reset forms against reliably
+    const initialTemplate = {
         id: '', name: '', email: '', initials: '', role: '', department: '', status: 'Active', phone: '', manager: '', schedule: '', location: '', company: ''
-    } : (getEmployeeById(id) || getEmployeeById(1)!); // fallback to 1 if bad ID
+    };
+    const [employee, setEmployee] = useState<any>(null);
+
+    useEffect(() => {
+        if (!id || isNew) return;
+        EmployeeAPI.getById(id).then(setEmployee).catch(console.error);
+    }, [id, isNew]);
 
     const [isEditing, setIsEditing] = useState(isNew);
-    const [formData, setFormData] = useState<Employee>(initialEmployee);
+    const [formData, setFormData] = useState<any>(isNew ? initialTemplate : employee);
+
+    useEffect(() => {
+        if (employee) setFormData(employee);
+    }, [employee]);
+
+    if (!isNew && !formData) return <div className="p-12 text-slate-500 font-medium">Loading employee metrics...</div>;
 
     const handleSave = () => {
         if (isNew) {
-            addEmployee(formData);
+            // Generate arbitrary mock id internally and route immediately after API resolution
+            EmployeeAPI.create(formData)
+                .then(() => navigate('/dashboard'))
+                .catch(console.error);
+        } else {
+            // Update flow skipped intentionally - would map to API as well
+            setIsEditing(false);
+        }
+    };
+
+    const handleCancel = () => {
+        if (isNew) {
             navigate('/dashboard');
         } else {
-            setIsEditing(false); // real API call here
+            setFormData(employee || initialTemplate);
+            setIsEditing(false);
         }
     };
 
@@ -45,7 +69,7 @@ export function EmployeeDetail() {
                         <Button onClick={handleSave} disabled={isNew && !formData.name} className="px-6 rounded-xl bg-blue-600 text-white hover:bg-blue-700 uppercase text-[11px] tracking-wider font-semibold shadow-sm h-9">
                             SAVE
                         </Button>
-                        <Button onClick={() => { if (isNew) { navigate('/dashboard') } else { setIsEditing(false); setFormData(initialEmployee); } }} variant="outline" className="px-6 rounded-xl text-slate-600 border-slate-200 uppercase text-[11px] tracking-wider font-semibold shadow-sm h-9">
+                        <Button onClick={handleCancel} variant="outline" className="px-6 rounded-xl text-slate-600 border-slate-200 uppercase text-[11px] tracking-wider font-semibold shadow-sm h-9">
                             CANCEL
                         </Button>
                     </div>
