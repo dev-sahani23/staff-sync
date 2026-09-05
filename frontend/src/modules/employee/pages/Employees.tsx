@@ -8,6 +8,7 @@ import { DataTable } from '@/components/ui/data-table';
 import { type ColumnDef } from '@tanstack/react-table';
 import { EmployeeAPI } from '@/api/api';
 import { useEffect } from 'react';
+import { PaginationControls } from '@/components/ui/pagination-controls';
 
 const columns: ColumnDef<any>[] = [
     {
@@ -135,38 +136,11 @@ export function Employees() {
             )}
 
             {/* Pagination Controls */}
-            {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-2 pb-12 pt-4">
-                    <Button
-                        variant="outline"
-                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                        disabled={currentPage === 1}
-                        className="rounded-lg h-9 px-3 text-sm text-slate-600 shadow-sm"
-                    >
-                        Previous
-                    </Button>
-
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
-                        <button
-                            key={pageNum}
-                            onClick={() => setCurrentPage(pageNum)}
-                            className={`w-9 h-9 rounded-lg text-sm font-medium transition-colors ${currentPage === pageNum ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100'}`}
-                        >
-                            {pageNum}
-                        </button>
-                    ))}
-
-                    <Button
-                        variant="outline"
-                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                        disabled={currentPage === totalPages}
-                        className="rounded-lg h-9 px-3 text-sm text-slate-600 shadow-sm"
-                    >
-                        Next
-                    </Button>
-                </div>
-            )}
-
+            <PaginationControls
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+            />
         </div>
     );
 }

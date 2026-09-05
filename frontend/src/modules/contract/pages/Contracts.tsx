@@ -7,6 +7,7 @@ import { type ColumnDef } from '@tanstack/react-table';
 import { ContractAPI } from '@/api/api';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { PaginationControls } from '@/components/ui/pagination-controls';
 
 const columns: ColumnDef<any>[] = [
     {
@@ -46,10 +47,17 @@ const columns: ColumnDef<any>[] = [
 export function Contracts() {
     const navigate = useNavigate();
     const [contracts, setContracts] = useState<any[]>([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
         ContractAPI.getAll().then(setContracts).catch(console.error);
     }, []);
+
+    const filteredContracts = contracts.filter(c => c.employeeName.toLowerCase().includes(searchTerm.toLowerCase()));
+    const ITEMS_PER_PAGE = 8;
+    const totalPages = Math.max(1, Math.ceil(filteredContracts.length / ITEMS_PER_PAGE));
+    const paginatedContracts = filteredContracts.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
     return (
         <div className="w-full font-sans max-w-[1000px]">
@@ -65,6 +73,8 @@ export function Contracts() {
                             <Search className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
                             <Input
                                 placeholder="Search contracts..."
+                                value={searchTerm}
+                                onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
                                 className="pl-10 h-10 w-full rounded-xl border-slate-200 focus-visible:ring-1 focus-visible:ring-blue-500 text-[15px]"
                             />
                         </div>
@@ -72,14 +82,19 @@ export function Contracts() {
                 }
             />
 
-            <div className="pb-12 mt-6">
+            <div className="pb-6 mt-6">
                 <DataTable
                     columns={columns}
-                    data={contracts}
-                    searchKey="employeeName"
+                    data={paginatedContracts}
                     onRowClick={(row) => navigate(`/contract/${row.id}`)}
                 />
             </div>
+
+            <PaginationControls
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+            />
         </div>
     );
 }
