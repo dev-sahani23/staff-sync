@@ -3,3 +3,6 @@ node_modules
 .env
 
 /generated/prisma
+/Implementation-plan-payroll-engine
+/KANBAN_BOARD.md
+/TESTING_GUIDE_DEV2.md

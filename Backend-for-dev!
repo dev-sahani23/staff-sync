@@ -1,0 +1,214 @@
+# PeoplePay360: 2-Developer Backend Implementation Plan & Task Breakdown
+
+This document provides the complete task breakdown, Git branching strategy, shared interface contracts, and step-by-step execution roadmap for **Developer 1 (Core HR & Master Data)** and **Developer 2 (Payroll Engine & Analytics)** to build the backend concurrently with **zero merge conflicts**.
+
+---
+
+## 🌿 1. Git Branching Strategy & Workflow
+
+To prevent merge conflicts while developing simultaneously:
+
+```text
+               ┌── feature/dev1-core-hr ────────────┐
+main ──> dev ──┤                                    ├──> Merge to dev ──> main
+               └── feature/dev2-payroll-engine ─────┘
+```
+
+### Git Rules for the Team
+1. **Base Branch**: Both developers branch off `dev` (after the initial scaffolding & Prisma schema skeleton are merged).
+2. **Developer 1 Branch**: `git checkout -b feature/dev1-core-hr`
+3. **Developer 2 Branch**: `git checkout -b feature/dev2-payroll-engine`
+4. **Isolated Module Folders**: Each developer works strictly inside their designated module subdirectories.
+5. **Single Router Aggregator**: Each developer exports their sub-router from their module (e.g., `employee.routes.ts`, `payrun.routes.ts`). Mounting them in `src/routes/index.ts` is done in isolated blocks or merged during daily sync.
+6. **Prisma Schema Changes**: Any database schema modification must be communicated before editing `prisma/schema.prisma`. Run `npx prisma db push` or `npx prisma migrate dev` locally.
+
+---
+
+## 🤝 2. The Shared Contract Boundary (Zero-Blocking Rule)
+
+Developer 2's Payroll calculation requires Contract, Attendance, and Time Off data. To build independently on Day 1 without waiting for Dev 1:
+- Dev 1 implements and exports a typed helper service: `ContractService.findValidContractForPeriod(employeeId, periodStart, periodEnd)`.
+- Dev 2 writes the pure **Salary Rule Engine as a pure unit-testable function** taking mock inputs first (`(contractWage, workedDays, rules) => PayslipLine[]`).
+- Dev 2 can mock the contract/attendance service methods until Dev 1 merges their modules.
+
+---
+
+# 👨‍💻 Developer 1: Core HR & Master Data Track
+
+> **Focus**: Security, Employee Master, Working Schedules, Contracts, Attendance, and Time Off.
+
+```text
+src/modules/
+├── auth/           # Login, Register, JWT, Password Hash
+├── users/          # User Management & Roles
+├── employees/      # Employee profile, Kanban/List filters, Smart Buttons
+├── contracts/      # Contract CRUD, overlap validation, period search
+├── schedules/      # Working schedules, schedule lines, weekly hours computation
+├── attendance/     # Check-in/out, worked hours calculation, corrections
+└── timeoff/        # Leave types, allocations, transactional leave approvals
+```
+
+### 📋 Dev 1 Task Breakdown & Endpoints
+
+#### Task 1.1: Authentication & Role-Based Access Control (RBAC)
+- [ ] **Data Model**: `User` (`id`, `email`, `passwordHash`, `role`, `employeeId`, `isActive`).
+- [ ] **Endpoints**:
+  - `POST /api/auth/register` (Admin/Seed only) - hash password with `bcrypt.hash(password, 10)`.
+  - `POST /api/auth/login` - validate email, compare password, sign JWT with `{ sub: userId, role, employeeId }` (8h expiry).
+- [ ] **Middlewares**:
+  - `authenticateJWT`: Verifies `Authorization: Bearer <token>`, attaches `req.user`.
+  - `authorizeRoles(...roles)`: Enforces roles (`ADMIN`, `HR_MANAGER`, `HR_PAYROLL_USER`, `HR_PAYROLL_MANAGER`, `EMPLOYEE`).
+  - `employeeScope`: Ensures `EMPLOYEE` role can only access/modify their own records (`req.user.employeeId`).
+
+#### Task 1.2: Working Schedule Module
+- [ ] **Data Models**: `WorkingSchedule` + `ScheduleLine` (`dayOfWeek`, `startTime`, `endTime`, `breakMinutes`).
+- [ ] **Endpoints**:
+  - `POST /api/schedules` (create schedule + nested `ScheduleLine[]` in one request).
+  - `GET /api/schedules` & `GET /api/schedules/:id`.
+  - `PUT /api/schedules/:id` & `DELETE /api/schedules/:id`.
+- [ ] **Business Rule**: Compute `calculateWeeklyHours(scheduleId)` dynamically as $\sum(\text{endTime} - \text{startTime} - \text{breakMinutes})$ on every `GET` response. Never store it statically.
+
+#### Task 1.3: Employee Master Module
+- [ ] **Data Model**: `Employee` (`firstName`, `lastName`, `email`, `phone`, `jobPosition`, `department`, `status`, `managerId`, `scheduleId`, `bankName`, `accountNumber`).
+- [ ] **Endpoints**:
+  - `POST /api/employees` (HR Manager+).
+  - `GET /api/employees` (supports `?view=kanban` or `?view=list`, query filters by `department`, `status`, `search`).
+  - `GET /api/employees/:id` & `PATCH /api/employees/:id`.
+  - **Smart Button Routes**:
+    - `GET /api/employees/:id/contracts`
+    - `GET /api/employees/:id/attendance`
+    - `GET /api/employees/:id/timeoff`
+    - `GET /api/employees/:id/allocations`
+
+#### Task 1.4: Contract Management Module
+- [ ] **Data Model**: `Contract` (`employeeId`, `salaryStructureId`, `wage`, `startDate`, `endDate`, `status`, `department`, `jobPosition`).
+- [ ] **Endpoints**:
+  - `POST /api/contracts` & `GET /api/contracts` & `PATCH /api/contracts/:id`.
+  - `PATCH /api/contracts/:id/activate` (auto-expires any previous active contract for the employee).
+  - `GET /api/contracts/lookup?employeeId=&periodStart=&periodEnd=` (helper for Dev 2's Payroll Engine).
+- [ ] **Business Rule**: `assertNoOverlappingActiveContract()` - reject creation/activation if dates overlap with an existing `ACTIVE` contract.
+
+#### Task 1.5: Attendance Module
+- [ ] **Data Model**: `Attendance` (`employeeId`, `date`, `checkIn`, `checkOut`, `workedHours`, `status`, `correctedBy`, `correctionNotes`).
+- [ ] **Endpoints**:
+  - `POST /api/attendance/check-in` & `POST /api/attendance/:id/check-out` (computes `workedHours` on the fly).
+  - `GET /api/attendance` (filter by `employeeId`, `dateRange`, `status`).
+  - `PATCH /api/attendance/:id/correct` (HR Manager+ only: updates times, sets `status = 'CORRECTED'`, logs `correctedBy`).
+- [ ] **Business Rule**: Automatically flag missing check-outs after end-of-day as `EXCEPTION`.
+
+#### Task 1.6: Time Off & Allocations Module
+- [ ] **Data Models**: `TimeOffType`, `LeaveAllocation`, `LeaveRequest`.
+- [ ] **Endpoints**:
+  - `POST /api/timeoff/types` & `GET /api/timeoff/types` (Admin/HR Manager).
+  - `POST /api/timeoff/allocations` & `GET /api/timeoff/allocations` (computed `remaining = allocated - taken`).
+  - `POST /api/timeoff/requests` (Employee creates for self, HR creates for anyone).
+  - `PATCH /api/timeoff/requests/:id/approve` & `PATCH /api/timeoff/requests/:id/refuse`.
+- [ ] **Business Rule (Prisma Transaction)**: On approval:
+  1. Set request status to `APPROVED`.
+  2. Find employee's matching `LeaveAllocation`.
+  3. Validate `taken + duration <= allocated`.
+  4. Increment `taken` by `duration`. Both writes must succeed or roll back.
+
+---
+
+# 👩‍💻 Developer 2: Payroll Engine & Analytics Track
+
+> **Focus**: Salary Structures & Rules, Math Engine, Payrun Wizard, Payslip Processing, Puppeteer PDF, BullMQ/Mail, and Dashboard Aggregations.
+
+```text
+src/modules/
+├── salary-rules/   # Salary Structure & Rules CRUD (sequence, fixed/percentage/formula)
+├── salary-engine/  # Pure Calculation Logic (mathjs evaluator)
+├── payruns/        # 2-step wizard, compute batch, validate warnings, mark-paid
+├── payslips/       # Payslip queries, Puppeteer HTML-to-PDF generator
+├── mail/           # Async email worker (Nodemailer / BullMQ)
+└── dashboard/      # KPI calculations, charts, monthly trends, alerts
+```
+
+### 📋 Dev 2 Task Breakdown & Endpoints
+
+#### Task 2.1: Salary Structure & Rules Configuration
+- [ ] **Data Models**: `SalaryStructure`, `SalaryRule` (`code`, `name`, `category`, `sequence`, `computeMethod`, `amount`, `baseCode`, `formula`).
+- [ ] **Endpoints**:
+  - `POST /api/salary-structures` & `GET /api/salary-structures` (HR Payroll Manager write; HR Payroll User read-only).
+  - `POST /api/salary-structures/:id/rules` (validates unique `sequence`, `computeMethod` fields).
+  - `GET /api/salary-structures/:id/rules` (sorted by `sequence ASC`).
+- [ ] **Validation**: `FIXED` requires `amount`; `PERCENTAGE` requires `amount` + `baseCode`; `FORMULA` requires a valid formula string.
+
+#### Task 2.2: Pure Salary Computation Engine (`salary-engine/`)
+- [ ] **Core Logic**: Pure TypeScript service independent of DB (unit tested first).
+- [ ] **Inputs**: `(employee, contractWage, workedDays, salaryRules[])`.
+- [ ] **Algorithm**:
+  1. Sort rules by `sequence ASC`.
+  2. Initialize execution context: `{ WAGE: contractWage, WORKED_DAYS: workedDays, ... }`.
+  3. Loop through rules:
+     - `FIXED` $\rightarrow$ `context[rule.code] = rule.amount`
+     - `PERCENTAGE` $\rightarrow$ `context[rule.code] = context[rule.baseCode] * (rule.amount / 100)`
+     - `FORMULA` $\rightarrow$ `context[rule.code] = mathjs.evaluate(rule.formula, context)`
+  4. Sum `GROSS` category rules $\rightarrow$ `grossTotal`.
+  5. Sum `DEDUCTION` category rules $\rightarrow$ `totalDeductions`.
+  6. Calculate `netTotal = grossTotal - totalDeductions` (or explicit `NET` rule).
+  7. Return `{ lines: PayslipLine[], grossTotal, netTotal }`.
+
+#### Task 2.3: Payrun 2-Step Wizard & Batch Processing
+- [ ] **Data Models**: `Payrun` (`name`, `salaryStructureId`, `periodStart`, `periodEnd`, `status`), `Payslip`, `PayslipLine`.
+- [ ] **Endpoints**:
+  - **Step 1 (Scope & Preview)**: `POST /api/payruns/draft` $\rightarrow$ accepts `{ salaryStructureId, periodStart, periodEnd }`, returns draft summary + list of eligible employees.
+  - **Step 2 (Selection & Creation)**: `POST /api/payruns` $\rightarrow$ accepts `{ salaryStructureId, periodStart, periodEnd, employeeIds[] }`, creates Payrun in `DRAFT` status.
+  - **Step 3 (Compute)**: `POST /api/payruns/:id/compute`:
+    1. For each employee, fetch active contract for the period. If 0 or >1, record warning (`NO_MATCHING_CONTRACT` / `MULTIPLE_ACTIVE_CONTRACTS`) and continue without crashing.
+    2. Fetch worked days from Attendance & approved paid leaves from Time Off.
+    3. Run Salary Rule Engine $\rightarrow$ generate `Payslip` + `PayslipLine[]`.
+    4. Detect warnings (missing bank account, duplicate payslip) $\rightarrow$ save to `Payslip.warnings`.
+    5. Set `Payrun.status = 'COMPUTED'`.
+  - **Step 4 (Validate & Pay)**:
+    - `PATCH /api/payruns/:id/validate` $\rightarrow$ checks unresolved warnings, sets `status = 'VALIDATED'`.
+    - `PATCH /api/payruns/:id/mark-paid` $\rightarrow$ sets `status = 'PAID'`, locks payslips from edits.
+  - **Step 5 (Send Payslips)**:
+    - `POST /api/payruns/:id/send` $\rightarrow$ triggers async worker to generate PDFs and email employees (returns `202 Accepted` immediately).
+
+#### Task 2.4: Payslip HTML-to-PDF Generator (`payslips/`)
+- [ ] Build server-side responsive HTML payslip template showing:
+  - Company Header & Logo
+  - Employee Details, Department, Bank Info
+  - Period, Worked Days, Salary Structure Name
+  - Line-by-line itemized breakdown table (Basic, Allowances, Deductions, Gross, Net)
+- [ ] **Endpoint**: `GET /api/payslips/:id/pdf` - renders HTML via `puppeteer` and streams PDF buffer to response.
+
+#### Task 2.5: Dashboard Aggregation & Analytics APIs (`dashboard/`)
+- [ ] Build high-performance aggregation endpoints using Prisma `groupBy` & `aggregate`:
+  - `GET /api/dashboard/kpis?period=&department=&employeeType=` (Total Net Paid, Payslips Generated, Avg Salary, Approved Time Off, Attendance Health).
+  - `GET /api/dashboard/salary-cost-by-department`
+  - `GET /api/dashboard/monthly-net-trend`
+  - `GET /api/dashboard/attendance-overview` (Present, Late, Absent, Overtime, Exceptions).
+  - `GET /api/dashboard/alerts` (unresolved warnings, contract expiration alerts).
+
+---
+
+## 📅 3. Parallel Execution Timeline (Day-by-Day)
+
+| Day / Milestone | 👨‍💻 Developer 1 (Core HR) | 👩‍💻 Developer 2 (Payroll Engine) |
+| :--- | :--- | :--- |
+| **Day 1: Setup & Foundations** | Scaffolding setup, Auth, JWT, RolesGuard, User registration/login | Salary Structure & Rule CRUD, Setup pure Salary Engine with `mathjs` unit tests |
+| **Day 2: Core Records & Wizard** | Working Schedule (nested lines + weekly hours), Employee Master (CRUD + Kanban) | Build Payrun Wizard Step 1 (`/draft`) and Step 2 (`POST /payruns`) |
+| **Day 3: Logic & Computation** | Contract Module (overlap rule + period search helper), Attendance (check-in/out) | Connect Contract helper to Payrun Compute engine (`POST /payruns/:id/compute`), Warning detector |
+| **Day 4: Workflow & Documents** | Time Off (types, allocations, transactional leave approval) | Payrun Validate/Mark-Paid status workflow + Puppeteer HTML-to-PDF endpoint |
+| **Day 5: Analytics & Delivery** | Smart Button count endpoints, Role-scope filters for employees | Dashboard Aggregations (KPIs, Charts, Alerts) + Async Email Delivery |
+| **Day 6: Integration & Demo** | Joint integration testing, Seed script execution (`seed.ts`), Swagger docs validation, Postman collection |
+
+---
+
+## 🔗 4. Unified Error Handling & Swagger Documentation
+
+Both developers must follow these two standards to ensure frontend integration is seamless:
+
+1. **Standardized Error Response Shape**:
+   ```json
+   {
+     "statusCode": 400,
+     "message": "Contract date range overlaps with an existing active contract",
+     "error": "Bad Request"
+   }
+   ```
+2. **Swagger / OpenAPI 3.0**:
+   - Every route file must include Swagger annotations or JSDoc comments so the live documentation at `/api/docs` stays updated automatically.

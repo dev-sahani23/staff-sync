@@ -1,0 +1,53 @@
+# 📝 Developer 2 To-Do Checklist: Payroll Backend System
+
+**Branch:** `feature/dev2-payroll-engine`  
+**Total Tasks:** `20 Tasks`  
+**Status:** `20 / 20 Completed (100%)` ✅
+
+---
+
+## 🔹 Phase 1: Salary Structure & Rules Management (`src/modules/salary-rules`)
+- [x] **Task 01/20**: Define Prisma models for `SalaryStructure` and `SalaryRule` with relations, categories, and computation methods (`FIXED`, `PERCENTAGE`, `FORMULA`).
+- [x] **Task 02/20**: Create Zod validation schemas for Salary Structure and Rules (validates sequence uniqueness and computation fields).
+- [x] **Task 03/20**: Build `SalaryStructureService` and `SalaryStructureController` for Structure CRUD (`POST /api/salary-structures`, `GET /api/salary-structures`, `GET /api/salary-structures/:id`).
+- [x] **Task 04/20**: Build nested Salary Rule CRUD under structures with sequence sorting (`POST /api/salary-structures/:id/rules`, `PATCH`, `DELETE`).
+
+---
+
+## 🔹 Phase 2: Pure Salary Computation Engine (`src/modules/salary-engine`)
+- [x] **Task 05/20**: Build safe mathematical formula evaluator wrapping `mathjs` with scoped variable context (prevents unsafe `eval`).
+- [x] **Task 06/20**: Implement `SalaryEngineService` core calculation logic (sequence execution, context accumulator, Gross, Deductions, and Net computation).
+- [x] **Task 07/20**: Write pure Unit Test suite for `SalaryEngineService` verifying Fixed, Percentage, Formula chaining, and deduction rules (18/18 Passed).
+
+---
+
+## 🔹 Phase 3: Payrun 2-Step Wizard & Batch Processing (`src/modules/payruns`)
+- [x] **Task 08/20**: Define Prisma models for `Payrun`, `Payslip`, and `PayslipLine` with status enums (`DRAFT`, `COMPUTED`, `VALIDATED`, `PAID`).
+- [x] **Task 09/20**: Build Payrun Wizard Step 1: `POST /api/payruns/draft` (scope preview & eligible employee count).
+- [x] **Task 10/20**: Build Payrun Wizard Step 2: `POST /api/payruns` (create Payrun batch in `DRAFT` status for selected employees).
+- [x] **Task 11/20**: Build Payrun Compute Pipeline: `POST /api/payruns/:id/compute` (fetches active contracts, attendance, leaves, runs engine, generates payslips).
+- [x] **Task 12/20**: Build Payroll Warnings Detector (surfaces missing bank details, duplicate payslips, missing/multiple contracts into `Payslip.warnings`).
+- [x] **Task 13/20**: Build Payrun Status Transitions: `PATCH /api/payruns/:id/validate` and `PATCH /api/payruns/:id/mark-paid` (locks payslips from further edits).
+
+---
+
+## 🔹 Phase 4: Payslip PDF Generation (`src/modules/payslips`)
+- [x] **Task 14/20**: Design professional, printable HTML payslip template with itemized earnings, allowances, deductions, gross, and net.
+- [x] **Task 15/20**: Build Puppeteer PDF Generator service and streaming endpoint `GET /api/payslips/:id/pdf`.
+
+---
+
+## 🔹 Phase 5: Async Email Delivery (`src/modules/mail`)
+- [x] **Task 16/20**: Configure Nodemailer email service with HTML payslip layout and PDF attachment capabilities.
+- [x] **Task 17/20**: Build async batch sender endpoint `POST /api/payruns/:id/send` (returns `202 Accepted` immediately, processes in background).
+
+---
+
+## 🔹 Phase 6: Payroll Dashboard & Analytics Aggregations (`src/modules/dashboard`)
+- [x] **Task 18/20**: Build unified query filter middleware/handler for `?period=&department=&employeeType=`.
+- [x] **Task 19/20**: Implement Dashboard Aggregation Endpoints (`GET /api/dashboard/kpis`, `/salary-cost-by-department`, `/monthly-net-trend`, `/attendance-overview`, `/alerts`).
+
+---
+
+## 🔹 Phase 7: Swagger Documentation & Final Verification
+- [x] **Task 20/20**: Setup Swagger OpenAPI 3.0 documentation for all Developer 2 endpoints at `/api/docs` and verify complete end-to-end flow.
