@@ -9,34 +9,42 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
-const loginSchema = z.object({
+const registerSchema = z.object({
     email: z.string().email({ message: "Please enter a valid email address." }),
     password: z.string().min(5, { message: "Password must be at least 5 characters long." }),
 });
 
-export function Login() {
+export function Register() {
     const { login } = useAuth();
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
 
-    const form = useForm<z.infer<typeof loginSchema>>({
-        resolver: zodResolver(loginSchema),
+    const form = useForm<z.infer<typeof registerSchema>>({
+        resolver: zodResolver(registerSchema),
         defaultValues: {
             email: "",
             password: "",
         },
     });
 
-    const onSubmit = async (values: z.infer<typeof loginSchema>) => {
+    const onSubmit = async (values: z.infer<typeof registerSchema>) => {
         setIsLoading(true);
         try {
             const { api } = await import('@/api/api');
-            const response = await api.post('/auth/login', {
+            // 1. Register the user
+            await api.post('/auth/register', {
+                email: values.email,
+                password: values.password,
+                role: 'EMPLOYEE', // Default role
+            });
+            
+            // 2. Automatically log them in after registration
+            const loginResponse = await api.post('/auth/login', {
                 email: values.email,
                 password: values.password
             });
             
-            const { accessToken, user } = response.data;
+            const { accessToken, user } = loginResponse.data;
             
             // Call context login
             login(accessToken, {
@@ -51,9 +59,10 @@ export function Login() {
             } else {
                 navigate('/dashboard');
             }
-        } catch (error) {
-            console.error("Login failed:", error);
-            alert("Login failed. Please check your credentials.");
+        } catch (error: any) {
+            console.error("Registration failed:", error);
+            const errMsg = error.response?.data?.message || "Registration failed. Please try again.";
+            alert(errMsg);
         } finally {
             setIsLoading(false);
         }
@@ -70,8 +79,8 @@ export function Login() {
             <div className="flex-1 flex justify-center items-start pt-16 md:pt-24 px-4 font-sans">
                 <div className="w-full max-w-[440px] space-y-8">
                     <div>
-                        <h2 className="text-3xl font-medium text-slate-800 tracking-tight">Welcome back</h2>
-                        <p className="mt-2 text-[#64748b] text-base">Sign in to continue to your workspace.</p>
+                        <h2 className="text-3xl font-medium text-slate-800 tracking-tight">Create an account</h2>
+                        <p className="mt-2 text-[#64748b] text-base">Join the workspace to manage your HR profile.</p>
                     </div>
 
                     <Form {...form}>
@@ -98,9 +107,6 @@ export function Login() {
                                         <FormControl>
                                             <Input type="password" placeholder="••••••••" className="h-12 rounded-xl text-lg tracking-widest border-[#cbd5e1] focus-visible:ring-1 focus-visible:ring-blue-500" {...field} />
                                         </FormControl>
-                                        <div className="flex justify-end pt-1">
-                                            <a href="#" className="text-sm text-[#2563eb] hover:text-blue-500">Forgot password?</a>
-                                        </div>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -108,7 +114,7 @@ export function Login() {
 
                             <div className="pt-2">
                                 <Button type="submit" className="w-full h-12 bg-[#2563eb] hover:bg-blue-700 text-white rounded-xl text-base font-medium shadow-none transition-colors" disabled={isLoading}>
-                                    {isLoading ? 'Signing In...' : 'Sign In'}
+                                    {isLoading ? 'Creating Account...' : 'Sign Up'}
                                 </Button>
                             </div>
                         </form>
@@ -116,7 +122,7 @@ export function Login() {
 
                     <div className="pt-8 mt-8 border-t border-gray-100">
                         <p className="text-center text-sm text-[#64748b]">
-                            Don't have an account? <Link to="/register" className="text-[#2563eb] hover:text-blue-500 font-medium">Sign up</Link>
+                            Already have an account? <Link to="/login" className="text-[#2563eb] hover:text-blue-500 font-medium">Log in</Link>
                         </p>
                     </div>
                 </div>
@@ -125,4 +131,4 @@ export function Login() {
     );
 }
 
-export default Login;
+export default Register;

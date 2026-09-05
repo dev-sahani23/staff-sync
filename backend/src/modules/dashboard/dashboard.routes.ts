@@ -3,20 +3,13 @@ import { dashboardController } from './dashboard.controller.ts';
 import {
   authenticateJWT,
   authorizeRoles,
+  HR_MANAGER_PLUS,
 } from '../../middlewares/auth.middleware.ts';
-import { Role } from '@prisma/client';
 
 const router = Router();
 
 router.use(authenticateJWT);
-router.use(
-  authorizeRoles(
-    Role.ADMIN,
-    Role.HR_PAYROLL_MANAGER,
-    Role.HR_PAYROLL_USER,
-    Role.HR_MANAGER
-  )
-);
+router.use(authorizeRoles(...HR_MANAGER_PLUS));
 
 // 1. KPI Metric Cards
 router.get('/kpis', (req, res) => dashboardController.getKpis(req, res));

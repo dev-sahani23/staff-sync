@@ -1,18 +1,18 @@
 import { Router } from 'express';
 import { payslipsController } from './payslips.controller.ts';
-import { authenticateJWT } from '../../middlewares/auth.middleware.ts';
+import { authenticateJWT, authorizeRoles, PAYROLL_USER_PLUS } from '../../middlewares/auth.middleware.ts';
 
 const router = Router();
 
 router.use(authenticateJWT);
 
-// Employee self-service payslip history
+// Employee self-service payslip history (any authenticated employee can see their own)
 router.get('/my', (req, res) => payslipsController.getMyPayslips(req, res));
 
-// View single payslip
+// View single payslip - payroll users see any, employees only their own (enforced in controller)
 router.get('/:id', (req, res) => payslipsController.getPayslipById(req, res));
 
-// Stream printable PDF
+// Stream printable PDF - same access as viewing
 router.get('/:id/pdf', (req, res) => payslipsController.downloadPdf(req, res));
 
 export default router;

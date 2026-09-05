@@ -2,6 +2,28 @@ import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { Role } from '@prisma/client';
 
+// ── Standardised role groups (PS-aligned) ──────────────────────────
+// HR_MANAGER_PLUS   → any HR-level or higher
+// PAYROLL_USER_PLUS → payroll read/compute + manager + admin
+// PAYROLL_MANAGER_PLUS → payroll approval/send + admin
+export const HR_MANAGER_PLUS: Role[] = [
+  Role.HR_MANAGER,
+  Role.HR_PAYROLL_USER,
+  Role.HR_PAYROLL_MANAGER,
+  Role.ADMIN,
+];
+
+export const PAYROLL_USER_PLUS: Role[] = [
+  Role.HR_PAYROLL_USER,
+  Role.HR_PAYROLL_MANAGER,
+  Role.ADMIN,
+];
+
+export const PAYROLL_MANAGER_PLUS: Role[] = [
+  Role.HR_PAYROLL_MANAGER,
+  Role.ADMIN,
+];
+
 export type AuthUser = {
   userId: string;
   role: Role;

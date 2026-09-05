@@ -33,7 +33,8 @@ export class ContractsController {
 
   async activate(req: Request, res: Response): Promise<void> {
     try {
-      const contract = await contractsService.activateContract(req.params.id as string);
+      const contract = await contractsService.activateContract(req.params.id as string)
+        ;
       res.json(contract);
     } catch (error: any) {
       res.status(400).json({ statusCode: 400, message: error.message, error: 'Bad Request' });

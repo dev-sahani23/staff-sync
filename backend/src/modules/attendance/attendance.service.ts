@@ -1,4 +1,4 @@
-import prisma from '../../prisma';
+import prisma from '../../prisma/index.js';
 import { AttendanceStatus } from '@prisma/client';
 
 export class AttendanceService {

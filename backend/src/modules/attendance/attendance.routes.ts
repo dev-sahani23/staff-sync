@@ -1,20 +1,21 @@
 import { Router } from 'express';
-import { AttendanceController } from './attendance.controller';
-import { authenticateJWT, authorizeRoles, employeeScope } from '../../middlewares/auth.middleware';
+import { AttendanceController } from './attendance.controller.js';
+import { authenticateJWT, authorizeRoles, HR_MANAGER_PLUS } from '../../middlewares/auth.middleware.js';
+import type { AuthRequest } from '../../middlewares/auth.middleware.js';
 
 const router = Router();
 const attendanceController = new AttendanceController();
 
 router.use(authenticateJWT);
 
-// Create check-in/out
+// Create check-in/out - any authenticated user for themselves
 router.post('/check-in', attendanceController.checkIn.bind(attendanceController));
-router.post('/:id/check-out', attendanceController.checkOut.bind(attendanceController)); // Can be restricted to the owner of the record in controller or middleware
+router.post('/:id/check-out', attendanceController.checkOut.bind(attendanceController));
 
-// Read - open to authenticated but filtered by scope usually, handled in controller/service in real app
+// Read all - HR Manager+ sees global, Employees see only their own (handled via query filter in controller)
 router.get('/', attendanceController.getAll.bind(attendanceController));
 
 // HR Manager+ correction
-router.patch('/:id/correct', authorizeRoles('ADMIN', 'HR_MANAGER', 'HR_PAYROLL_MANAGER'), attendanceController.correct.bind(attendanceController));
+router.patch('/:id/correct', authorizeRoles(...HR_MANAGER_PLUS), attendanceController.correct.bind(attendanceController));
 
 export default router;

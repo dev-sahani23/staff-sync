@@ -1,4 +1,4 @@
-import prisma from '../../prisma';
+import prisma from '../../prisma/index.js';
 
 interface CreateScheduleDTO {
   name: string;
@@ -51,7 +51,7 @@ export class SchedulesService {
       include: { lines: true }
     });
 
-    return schedules.map(s => ({
+    return schedules.map((s: any) => ({
       ...s,
       weeklyHours: this.calculateWeeklyHours(s.lines)
     }));

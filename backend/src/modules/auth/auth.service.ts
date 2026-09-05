@@ -12,12 +12,30 @@ export class AuthService {
 
     const passwordHash = await bcrypt.hash(passwordRaw, 10);
     
+    let empId = employeeId;
+    if (!empId) {
+      const existingEmployee = await prisma.employee.findUnique({ where: { email } });
+      if (existingEmployee) {
+        empId = existingEmployee.id;
+      } else {
+        const employee = await prisma.employee.create({
+          data: {
+            firstName: email.split('@')[0],
+            lastName: 'User',
+            email: email,
+            status: 'ACTIVE'
+          }
+        });
+        empId = employee.id;
+      }
+    }
+
     const user = await prisma.user.create({
       data: {
         email,
         passwordHash,
         role,
-        ...(employeeId !== undefined && { employeeId })
+        employeeId: empId
       }
     });
 

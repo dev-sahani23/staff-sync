@@ -1,24 +1,25 @@
 import { Router } from 'express';
 import { EmployeesController } from './employees.controller.js';
-import { authenticateJWT, authorizeRoles, employeeScope } from '../../middlewares/auth.middleware.js'
+import { authenticateJWT, authorizeRoles, employeeScope, HR_MANAGER_PLUS } from '../../middlewares/auth.middleware.js'
+
 const router = Router();
 const employeesController = new EmployeesController();
 
 router.use(authenticateJWT);
 
 // Create - HR Manager+ only
-router.post('/', authorizeRoles('ADMIN', 'HR_MANAGER', 'HR_PAYROLL_MANAGER'), employeesController.create.bind(employeesController));
+router.post('/', authorizeRoles(...HR_MANAGER_PLUS), employeesController.create.bind(employeesController));
 
-// Read All - HR Manager+ or specific roles (Employees can't list all, maybe just see their own via /:id)
-router.get('/', authorizeRoles('ADMIN', 'HR_MANAGER', 'HR_PAYROLL_USER', 'HR_PAYROLL_MANAGER'), employeesController.getAll.bind(employeesController));
+// Read All - HR Manager+ (Employees cannot list all)
+router.get('/', authorizeRoles(...HR_MANAGER_PLUS), employeesController.getAll.bind(employeesController));
 
-// Read Single - Any role, but scoped for EMPLOYEE
+// Read Single - Any role, but scoped for EMPLOYEE (can only view their own)
 router.get('/:id', employeeScope, employeesController.getById.bind(employeesController));
 
 // Update - HR Manager+
-router.patch('/:id', authorizeRoles('ADMIN', 'HR_MANAGER', 'HR_PAYROLL_MANAGER'), employeesController.update.bind(employeesController));
+router.patch('/:id', authorizeRoles(...HR_MANAGER_PLUS), employeesController.update.bind(employeesController));
 
-// Sub-resources
+// Sub-resources - scoped so EMPLOYEE can only access their own
 router.get('/:id/contracts', employeeScope, employeesController.getContracts.bind(employeesController));
 router.get('/:id/attendance', employeeScope, employeesController.getAttendance.bind(employeesController));
 router.get('/:id/timeoff', employeeScope, employeesController.getTimeOff.bind(employeesController));
