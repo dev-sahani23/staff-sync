@@ -4,7 +4,6 @@
   "main": "src/index.ts",
   "type": "module",
   "scripts": {
-<<<<<<< HEAD
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "seed": "tsx prisma/seed.ts",
@@ -12,10 +11,6 @@
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
-=======
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "tsx watch src/index.ts"
->>>>>>> a9215566614b82e4a2bbce8a890046231bd2fd52
   },
   "keywords": [],
   "author": "",
@@ -40,15 +35,11 @@
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^26.4.1",
-<<<<<<< HEAD
     "@types/nodemailer": "^8.0.1",
     "@types/swagger-ui-express": "^4.1.8",
     "nodemon": "^3.1.14",
     "prisma": "^6.12.0",
     "ts-node": "^10.9.2",
-=======
-    "prisma": "^6.12.0",
->>>>>>> a9215566614b82e4a2bbce8a890046231bd2fd52
     "tsx": "^4.23.13",
     "typescript": "^7.0.2"
   }
