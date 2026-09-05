@@ -1,13 +1,15 @@
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { Role } from '@prisma/client';
 
+export type AuthUser = {
+  userId: string;
+  role: Role;
+  employeeId: string | null;
+};
+
 export interface AuthRequest extends Request {
-  user?: {
-    userId: string;
-    role: Role;
-    employeeId: string | null;
-  };
+  user?: AuthUser;
 }
 
 export const authenticateJWT = (req: AuthRequest, res: Response, next: NextFunction): void => {
@@ -16,12 +18,12 @@ export const authenticateJWT = (req: AuthRequest, res: Response, next: NextFunct
   if (authHeader) {
     const token = authHeader.split(' ')[1];
     
-    jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret', (err, user) => {
+    jwt.verify(token as string, process.env.JWT_SECRET || 'fallback-secret', (err: any, user: any) => {
       if (err) {
         return res.status(403).json({ message: 'Forbidden: Invalid token', error: 'Forbidden' });
       }
 
-      req.user = user as AuthRequest['user'];
+      req.user = user as AuthUser;
       next();
     });
   } else {
