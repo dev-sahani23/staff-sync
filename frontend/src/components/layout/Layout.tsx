@@ -2,11 +2,14 @@ import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useAuth, ROLE_LABELS } from '@/modules/auth/components/AuthContext';
 import { usePermissions } from '@/modules/auth/components/ProtectedRoute';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
+import { AttendanceWidget } from './AttendanceWidget';
+import { useState } from 'react';
 
 export function Layout() {
     const { user, logout } = useAuth();
     const { canViewHR, canViewPayroll, canManageUsers, canManageStructures, isEmployee } = usePermissions();
     const location = useLocation();
+    const [isWidgetOpen, setIsWidgetOpen] = useState(false);
 
     // Helper to determine if link is active
     const isActive = (path: string) => {
@@ -28,6 +31,7 @@ export function Layout() {
 
                     {/* Navigation */}
                     <nav className="flex items-center gap-8">
+<<<<<<< HEAD
                         {/* ── HR-only: Employees dropdown ─────────────── */}
                         {canViewHR && (
                             <DropdownMenu>
@@ -68,9 +72,36 @@ export function Layout() {
                         )}
 
                         {/* ── Attendance: visible to everyone ──────── */}
+=======
+                        <DropdownMenu>
+                            <DropdownMenuTrigger className={getLinkClass('/dashboard') + ' outline-none'}>
+                                Employees
+                                <span className="text-[10px] ml-0.5">▼</span>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="start" className="w-52 p-2 rounded-xl border border-slate-200 shadow-sm mt-1">
+                                <DropdownMenuItem asChild className="text-[15px] py-2 px-3 bg-blue-50/80 text-blue-600 font-medium mb-1 rounded-lg hover:bg-blue-100 cursor-pointer w-full text-center sm:text-left justify-center sm:justify-start">
+                                    <Link to="/dashboard">Employees</Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem asChild className="text-[15px] py-2 px-3 text-slate-700 cursor-pointer mb-1 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors justify-center sm:justify-start">
+                                    <Link to="/contracts">Contracts</Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className="text-[15px] py-2 px-3 text-slate-700 cursor-pointer mb-1 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors justify-center sm:justify-start">
+                                    Departments
+                                </DropdownMenuItem>
+                                <DropdownMenuItem asChild className="text-[15px] py-2 px-3 text-slate-700 cursor-pointer rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors justify-center sm:justify-start">
+                                    <Link to="/schedules">Working Schedule</Link>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                        <Link to="/contracts" className={getLinkClass('/contracts')}>
+                            Contracts
+                            <span className="text-[10px] ml-1">▼</span>
+                        </Link>
+>>>>>>> 4a9d6630167c4230bf8cc74268dee215e31f2bf5
                         <Link to="/attendance" className={getLinkClass('/attendance')}>
                             {isEmployee ? 'My Attendance' : 'Attendance'}
                         </Link>
+<<<<<<< HEAD
 
                         {/* ── Time Off: visible to everyone ─────────── */}
                         <div className="flex items-center gap-1 text-[15px] cursor-pointer text-slate-600 hover:text-slate-900">
@@ -83,6 +114,49 @@ export function Layout() {
                             <Link to="/payroll" className={getLinkClass('/payroll')}>
                                 Payroll
                             </Link>
+=======
+                        <DropdownMenu>
+                            <DropdownMenuTrigger className={getLinkClass('/timeoff') + ' outline-none'}>
+                                Time Off
+                                <span className="text-[10px] ml-0.5">▼</span>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="start" className="w-52 p-2 rounded-xl border border-slate-200 shadow-sm mt-1">
+                                <DropdownMenuItem asChild className="text-[15px] py-2 px-3 text-slate-700 cursor-pointer mb-1 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors justify-center sm:justify-start">
+                                    <Link to="/timeoff/requests">Requests</Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem asChild className="text-[15px] py-2 px-3 text-slate-700 cursor-pointer mb-1 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors justify-center sm:justify-start">
+                                    <Link to="/timeoff/allocations">Allocations</Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem asChild className="text-[15px] py-2 px-3 text-slate-700 cursor-pointer rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors justify-center sm:justify-start">
+                                    <Link to="/timeoff/types">Time Off Types</Link>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                        {canEditPayroll && (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger className={getLinkClass('/payroll') + ' outline-none'}>
+                                    Payroll
+                                    <span className="text-[10px] ml-0.5">▼</span>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="start" className="w-48 p-2 rounded-xl border border-slate-200 shadow-sm mt-1">
+                                    <DropdownMenuItem className="text-[15px] py-2 px-3 text-slate-700 cursor-pointer mb-1 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors justify-center sm:justify-start">
+                                        Dashboard
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem asChild className="text-[15px] py-2 px-3 text-slate-700 cursor-pointer mb-1 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors justify-center sm:justify-start">
+                                        <Link to="/payroll/payruns">Payruns</Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem asChild className="text-[15px] py-2 px-3 text-slate-700 cursor-pointer mb-1 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors justify-center sm:justify-start">
+                                        <Link to="/payroll/payslips">Payslips</Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem asChild className="text-[15px] py-2 px-3 text-slate-700 cursor-pointer mb-1 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors justify-center sm:justify-start">
+                                        <Link to="/payroll/structures">Structures</Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className="text-[15px] py-2 px-3 text-slate-700 cursor-pointer rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors justify-center sm:justify-start">
+                                        Rules
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+>>>>>>> 4a9d6630167c4230bf8cc74268dee215e31f2bf5
                         )}
 
                         {/* ── Reports: admin or payroll manager ─────── */}
@@ -95,17 +169,30 @@ export function Layout() {
                 </div>
 
                 {/* User / Profile section */}
+<<<<<<< HEAD
                 <div className="flex items-center gap-3">
                     {user && (
                         <span className="text-sm text-slate-500">
                             {user.name} · <span className="font-medium text-slate-700">{ROLE_LABELS[user.role]}</span>
                         </span>
                     )}
+=======
+                <div className="flex items-center gap-4 relative">
+>>>>>>> 4a9d6630167c4230bf8cc74268dee215e31f2bf5
                     <button
                         onClick={logout}
-                        className="w-8 h-8 rounded bg-red-500 hover:bg-red-600 transition-colors shadow-sm"
-                        title="Logout"
-                    />
+                        className="text-[13px] font-medium text-slate-500 hover:text-slate-800 transition-colors"
+                    >
+                        Log out
+                    </button>
+                    <button
+                        onClick={() => setIsWidgetOpen(!isWidgetOpen)}
+                        className="w-8 h-8 rounded-lg bg-red-500 hover:bg-red-600 transition-colors shadow-sm flex items-center justify-center text-white font-bold"
+                        title="Attendance Quick Action"
+                    >
+                        C
+                    </button>
+                    {isWidgetOpen && <AttendanceWidget onClose={() => setIsWidgetOpen(false)} />}
                 </div>
             </header>
 

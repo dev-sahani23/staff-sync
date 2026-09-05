@@ -6,6 +6,8 @@ import { DataTable } from '@/components/ui/data-table';
 import { type ColumnDef } from '@tanstack/react-table';
 import { AttendanceAPI } from '@/api/api';
 import { useEffect, useState } from 'react';
+import { PaginationControls } from '@/components/ui/pagination-controls';
+import { useNavigate } from 'react-router-dom';
 
 const columns: ColumnDef<any>[] = [
     {
@@ -39,11 +41,19 @@ const columns: ColumnDef<any>[] = [
 ];
 
 export function Attendance() {
+    const navigate = useNavigate();
     const [records, setRecords] = useState<any[]>([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
         AttendanceAPI.getAll().then(setRecords).catch(console.error);
     }, []);
+
+    const filteredRecords = records.filter(r => r.employeeName.toLowerCase().includes(searchTerm.toLowerCase()));
+    const ITEMS_PER_PAGE = 8;
+    const totalPages = Math.max(1, Math.ceil(filteredRecords.length / ITEMS_PER_PAGE));
+    const paginatedRecords = filteredRecords.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
     return (
         <div className="w-full font-sans max-w-[1000px]">
@@ -60,6 +70,8 @@ export function Attendance() {
                                 <Search className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
                                 <Input
                                     placeholder="Search attendance..."
+                                    value={searchTerm}
+                                    onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
                                     className="pl-10 h-10 w-full rounded-xl border-slate-200 focus-visible:ring-1 focus-visible:ring-blue-500 text-[15px]"
                                 />
                             </div>
@@ -74,13 +86,19 @@ export function Attendance() {
                 }
             />
 
-            <div className="pb-12 mt-8">
+            <div className="pb-6 mt-8">
                 <DataTable
                     columns={columns}
-                    data={records}
-                    searchKey="employeeName"
+                    data={paginatedRecords}
+                    onRowClick={(row) => navigate(`/attendance/${row.id}`)}
                 />
             </div>
+
+            <PaginationControls
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+            />
         </div>
     );
 }
