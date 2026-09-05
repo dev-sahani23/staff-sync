@@ -42,10 +42,13 @@ export class TimeOffController {
     }
   }
 
-  async createRequest(req: Request, res: Response): Promise<void> {
+  async createRequest(req: any, res: Response): Promise<void> {
     try {
-      // employeeId from token can be injected here for EMPLOYEE role if not provided
-      const request = await timeOffService.createRequest(req.body);
+      const payload = { ...req.body };
+      if (!payload.employeeId && req.user?.employeeId) {
+        payload.employeeId = req.user.employeeId;
+      }
+      const request = await timeOffService.createRequest(payload);
       res.status(201).json(request);
     } catch (error: any) {
       res.status(400).json({ statusCode: 400, message: error.message, error: 'Bad Request' });

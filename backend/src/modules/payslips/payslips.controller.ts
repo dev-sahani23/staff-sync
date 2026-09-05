@@ -57,6 +57,30 @@ export class PayslipsController {
     }
   }
 
+  async getAllPayslips(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const { payrunId, employeeId } = req.query;
+      const targetEmployeeId =
+        req.user?.role === 'EMPLOYEE' ? req.user.employeeId : (employeeId as string | undefined);
+
+      const payslips = await payslipsService.getAllPayslips({
+        payrunId: payrunId as string | undefined,
+        employeeId: targetEmployeeId,
+      });
+
+      res.status(200).json({
+        statusCode: 200,
+        data: payslips,
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        statusCode: 500,
+        message: error.message || 'Failed to fetch payslips',
+        error: 'Internal Server Error',
+      });
+    }
+  }
+
   async downloadPdf(req: AuthRequest, res: Response): Promise<void> {
     try {
       const id = req.params.id as string;

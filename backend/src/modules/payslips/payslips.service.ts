@@ -104,6 +104,57 @@ export class PayslipsService {
   }
 
   /**
+   * Get all payslips across payruns (HR / Admin directory).
+   */
+  async getAllPayslips(filters?: { payrunId?: string; employeeId?: string }) {
+    const where: any = {};
+    if (filters?.payrunId) where.payrunId = filters.payrunId;
+    if (filters?.employeeId) where.employeeId = filters.employeeId;
+
+    const payslips = await prisma.payslip.findMany({
+      where,
+      include: {
+        employee: true,
+        contract: true,
+        payrun: {
+          include: { salaryStructure: true },
+        },
+        lines: {
+          include: { salaryRule: true },
+          orderBy: { createdAt: 'asc' },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return payslips.map((ps: any) => {
+      let gross = 0;
+      let deductions = 0;
+      let net = 0;
+
+      for (const line of ps.lines || []) {
+        const cat = line.salaryRule?.category;
+        if (cat === 'BASIC' || cat === 'ALLOWANCE' || cat === 'GROSS') {
+          gross += line.amount;
+        } else if (cat === 'DEDUCTION') {
+          deductions += line.amount;
+        } else if (cat === 'NET' || line.label?.toUpperCase() === 'NET') {
+          net = line.amount;
+        }
+      }
+
+      if (net === 0) net = gross - deductions;
+
+      return {
+        ...ps,
+        grossTotal: Math.round(gross * 100) / 100,
+        deductionsTotal: Math.round(deductions * 100) / 100,
+        netTotal: Math.round(net * 100) / 100,
+      };
+    });
+  }
+
+  /**
    * Generate PDF Buffer for a payslip.
    */
   async generatePdf(payslipId: string): Promise<{ buffer: Buffer; employeeName: string }> {

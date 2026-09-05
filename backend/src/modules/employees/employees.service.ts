@@ -48,10 +48,47 @@ export class EmployeesService {
   }
 
   async updateEmployee(id: string, data: any) {
-    return prisma.employee.update({
+    const allowedFields = [
+      'firstName',
+      'lastName',
+      'email',
+      'phone',
+      'jobPosition',
+      'department',
+      'status',
+      'managerId',
+      'scheduleId',
+      'bankName',
+      'accountNumber',
+    ];
+
+    const cleanData: any = {};
+    for (const field of allowedFields) {
+      if (data[field] !== undefined) {
+        cleanData[field] = data[field];
+      }
+    }
+
+    if (cleanData.scheduleId === '') {
+      cleanData.scheduleId = null;
+    }
+    if (cleanData.managerId === '') {
+      cleanData.managerId = null;
+    }
+
+    const updated = await prisma.employee.update({
       where: { id },
-      data
+      data: cleanData,
     });
+
+    if (cleanData.department !== undefined) {
+      await prisma.contract.updateMany({
+        where: { employeeId: id, status: 'ACTIVE' },
+        data: { department: cleanData.department },
+      });
+    }
+
+    return updated;
   }
 
   async getEmployeeContracts(employeeId: string) {

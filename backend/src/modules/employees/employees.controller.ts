@@ -1,10 +1,12 @@
-import type { Request, Response } from 'express';
+import type { Response } from 'express';
 import { EmployeesService } from './employees.service.js';
+import prisma from '../../prisma/index.js';
+import type { AuthRequest } from '../../middlewares/auth.middleware.js';
 
 const employeesService = new EmployeesService();
 
 export class EmployeesController {
-  async create(req: Request, res: Response): Promise<void> {
+  async create(req: AuthRequest, res: Response): Promise<void> {
     try {
       const employee = await employeesService.createEmployee(req.body);
       res.status(201).json(employee);
@@ -13,7 +15,7 @@ export class EmployeesController {
     }
   }
 
-  async getAll(req: Request, res: Response): Promise<void> {
+  async getAll(req: AuthRequest, res: Response): Promise<void> {
     try {
       const employees = await employeesService.getEmployees(req.query);
       res.json(employees);
@@ -22,7 +24,7 @@ export class EmployeesController {
     }
   }
 
-  async getById(req: Request, res: Response): Promise<void> {
+  async getById(req: AuthRequest, res: Response): Promise<void> {
     try {
       const employee = await employeesService.getEmployeeById(req.params.id as string);
       res.json(employee);
@@ -31,9 +33,36 @@ export class EmployeesController {
     }
   }
 
-  async update(req: Request, res: Response): Promise<void> {
+  async update(req: AuthRequest, res: Response): Promise<void> {
     try {
-      const employee = await employeesService.updateEmployee(req.params.id as string, req.body);
+      const targetId = req.params.id as string;
+      const user = req.user;
+
+      // 1. Prevent user from modifying their own employee record by employeeId
+      if (user?.employeeId && user.employeeId === targetId) {
+        res.status(403).json({
+          statusCode: 403,
+          message: 'Forbidden: You cannot modify your own employee credentials or profile information.',
+          error: 'Forbidden',
+        });
+        return;
+      }
+
+      // 2. Also check if target employee email matches the authenticated user's email
+      const targetEmp = await employeesService.getEmployeeById(targetId);
+      if (targetEmp && user?.userId) {
+        const currentUser = await prisma.user.findUnique({ where: { id: user.userId } });
+        if (currentUser && currentUser.email.toLowerCase() === targetEmp.email.toLowerCase()) {
+          res.status(403).json({
+            statusCode: 403,
+            message: 'Forbidden: You cannot modify your own employee credentials or profile information.',
+            error: 'Forbidden',
+          });
+          return;
+        }
+      }
+
+      const employee = await employeesService.updateEmployee(targetId, req.body);
       res.json(employee);
     } catch (error: any) {
       res.status(400).json({ statusCode: 400, message: error.message, error: 'Bad Request' });

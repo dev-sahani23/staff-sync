@@ -161,6 +161,8 @@ export class PayrunsService {
         payslips: {
           include: {
             lines: true,
+            employee: true,
+            contract: true,
           },
         },
         _count: {
@@ -197,6 +199,7 @@ export class PayrunsService {
         status: p.status,
         totalPayslips: p._count.payslips,
         warningsCount: totalWarningsCount,
+        payslips: p.payslips,
         createdAt: p.createdAt,
         updatedAt: p.updatedAt,
       };

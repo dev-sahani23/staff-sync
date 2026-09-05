@@ -24,7 +24,38 @@ export class TimeOffService {
 
   // Requests
   async createRequest(data: any) {
-    return prisma.leaveRequest.create({ data });
+    if (!data.employeeId || typeof data.employeeId !== 'string' || data.employeeId.trim() === '') {
+      throw new Error('A valid Employee is required for submitting a leave request.');
+    }
+    if (!data.timeOffTypeId || typeof data.timeOffTypeId !== 'string' || data.timeOffTypeId.trim() === '') {
+      throw new Error('A valid Leave Type is required for submitting a leave request.');
+    }
+
+    const employee = await prisma.employee.findUnique({
+      where: { id: data.employeeId },
+    });
+    if (!employee) {
+      throw new Error(`Employee with ID '${data.employeeId}' does not exist.`);
+    }
+
+    const timeOffType = await prisma.timeOffType.findUnique({
+      where: { id: data.timeOffTypeId },
+    });
+    if (!timeOffType) {
+      throw new Error(`Leave Type with ID '${data.timeOffTypeId}' does not exist.`);
+    }
+
+    return prisma.leaveRequest.create({
+      data: {
+        employeeId: data.employeeId,
+        timeOffTypeId: data.timeOffTypeId,
+        startDate: new Date(data.startDate),
+        endDate: new Date(data.endDate),
+        duration: Number(data.duration) || 1,
+        notes: data.notes || null,
+        status: data.status || 'PENDING',
+      },
+    });
   }
 
   async getRequests() {
