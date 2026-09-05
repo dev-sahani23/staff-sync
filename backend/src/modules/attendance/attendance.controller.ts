@@ -1,6 +1,6 @@
-import { Request, Response } from 'express';
-import { AttendanceService } from './attendance.service';
-import { AuthRequest } from '../../middlewares/auth.middleware';
+import type { Request, Response } from 'express';
+import { AttendanceService } from './attendance.service.js';
+import type { AuthRequest } from '../../middlewares/auth.middleware.js';
 
 const attendanceService = new AttendanceService();
 
@@ -23,7 +23,7 @@ export class AttendanceController {
 
   async checkOut(req: Request, res: Response): Promise<void> {
     try {
-      const record = await attendanceService.checkOut(req.params.id);
+      const record = await attendanceService.checkOut(req.params.id as string);
       res.json(record);
     } catch (error: any) {
       res.status(400).json({ statusCode: 400, message: error.message, error: 'Bad Request' });
@@ -42,7 +42,7 @@ export class AttendanceController {
   async correct(req: AuthRequest, res: Response): Promise<void> {
     try {
       const correctedBy = req.user?.userId || 'SYSTEM';
-      const record = await attendanceService.correctAttendance(req.params.id, req.body, correctedBy);
+      const record = await attendanceService.correctAttendance(req.params.id as string, req.body, correctedBy);
       res.json(record);
     } catch (error: any) {
       res.status(400).json({ statusCode: 400, message: error.message, error: 'Bad Request' });
