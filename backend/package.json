@@ -1,22 +1,33 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "src/index.ts",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "seed": "tsx prisma/seed.ts",
+    "test:engine": "tsx src/modules/salary-engine/salary-engine.test.ts"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "PeoplePay360 HR & Payroll Platform Backend",
   "dependencies": {
     "@prisma/client": "^7.10.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "jsonwebtoken": "^9.0.3"
+    "jsonwebtoken": "^9.0.3",
+    "mathjs": "^15.2.0",
+    "nodemailer": "^10.0.0",
+    "puppeteer": "^25.10.0",
+    "swagger-ui-express": "^5.0.1",
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
@@ -24,9 +35,12 @@
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^26.4.1",
+    "@types/nodemailer": "^8.0.1",
+    "@types/swagger-ui-express": "^4.1.8",
     "nodemon": "^3.1.14",
     "prisma": "^6.12.0",
     "ts-node": "^10.9.2",
+    "tsx": "^4.23.13",
     "typescript": "^7.0.2"
   }
 }
