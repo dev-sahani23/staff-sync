@@ -1,7 +1,6 @@
 import { Router } from 'express';
-import { EmployeesController } from '../employees.controller.ts';
-import { authenticateJWT, authorizeRoles, employeeScope } from '../../middlewares/auth.middleware.ts';
-
+import { EmployeesController } from './employees.controller.js';
+import { authenticateJWT, authorizeRoles, employeeScope } from '../../middlewares/auth.middleware.js'
 const router = Router();
 const employeesController = new EmployeesController();
 

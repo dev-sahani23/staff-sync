@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import { SchedulesService } from './schedules.service';
+import type { Request, Response } from 'express';
+import { SchedulesService } from './schedules.service.js';
 
 const schedulesService = new SchedulesService();
 
@@ -24,7 +24,7 @@ export class SchedulesController {
 
   async getById(req: Request, res: Response): Promise<void> {
     try {
-      const schedule = await schedulesService.getScheduleById(req.params.id);
+      const schedule = await schedulesService.getScheduleById(req.params.id as string);
       res.json(schedule);
     } catch (error: any) {
       res.status(404).json({ statusCode: 404, message: error.message, error: 'Not Found' });
@@ -33,7 +33,7 @@ export class SchedulesController {
 
   async update(req: Request, res: Response): Promise<void> {
     try {
-      const schedule = await schedulesService.updateSchedule(req.params.id, req.body);
+      const schedule = await schedulesService.updateSchedule(req.params.id as string, req.body);
       res.json(schedule);
     } catch (error: any) {
       res.status(400).json({ statusCode: 400, message: error.message, error: 'Bad Request' });
@@ -42,7 +42,7 @@ export class SchedulesController {
 
   async delete(req: Request, res: Response): Promise<void> {
     try {
-      await schedulesService.deleteSchedule(req.params.id);
+      await schedulesService.deleteSchedule(req.params.id as string);
       res.status(204).send();
     } catch (error: any) {
       res.status(400).json({ statusCode: 400, message: error.message, error: 'Bad Request' });

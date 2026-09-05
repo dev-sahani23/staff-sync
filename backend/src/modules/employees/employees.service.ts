@@ -1,4 +1,4 @@
-import prisma from '../../prisma/index.ts';
+import prisma from '../../prisma/index.js';
 import { EmployeeStatus } from '@prisma/client';
 
 export class EmployeesService {

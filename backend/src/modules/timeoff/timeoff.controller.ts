@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import { TimeOffService } from './timeoff.service';
+import type { Request, Response } from 'express';
+import { TimeOffService } from './timeoff.service.js';
 
 const timeOffService = new TimeOffService();
 
@@ -35,7 +35,7 @@ export class TimeOffController {
     try {
       const allocations = await timeOffService.getAllocations();
       // compute remaining
-      const withRemaining = allocations.map(a => ({ ...a, remaining: a.allocated - a.taken }));
+      const withRemaining = allocations.map((a: any) => ({ ...a, remaining: a.allocated - a.taken }));
       res.json(withRemaining);
     } catch (error: any) {
       res.status(500).json({ statusCode: 500, message: error.message, error: 'Internal Server Error' });
@@ -63,7 +63,7 @@ export class TimeOffController {
 
   async approve(req: Request, res: Response): Promise<void> {
     try {
-      const request = await timeOffService.approveRequest(req.params.id);
+      const request = await timeOffService.approveRequest(req.params.id as string);
       res.json(request);
     } catch (error: any) {
       res.status(400).json({ statusCode: 400, message: error.message, error: 'Bad Request' });
@@ -72,7 +72,7 @@ export class TimeOffController {
 
   async refuse(req: Request, res: Response): Promise<void> {
     try {
-      const request = await timeOffService.refuseRequest(req.params.id);
+      const request = await timeOffService.refuseRequest(req.params.id as string);
       res.json(request);
     } catch (error: any) {
       res.status(400).json({ statusCode: 400, message: error.message, error: 'Bad Request' });
