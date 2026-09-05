@@ -37,8 +37,8 @@ export function Layout() {
                                 <DropdownMenuItem asChild className="text-[15px] py-2 px-3 bg-blue-50/80 text-blue-600 font-medium mb-1 rounded-lg hover:bg-blue-100 cursor-pointer w-full text-center sm:text-left justify-center sm:justify-start">
                                     <Link to="/dashboard">Employees</Link>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem className="text-[15px] py-2 px-3 text-slate-700 cursor-pointer mb-1 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors justify-center sm:justify-start">
-                                    Contracts
+                                <DropdownMenuItem asChild className="text-[15px] py-2 px-3 text-slate-700 cursor-pointer mb-1 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors justify-center sm:justify-start">
+                                    <Link to="/contracts">Contracts</Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem className="text-[15px] py-2 px-3 text-slate-700 cursor-pointer mb-1 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors justify-center sm:justify-start">
                                     Departments
@@ -48,10 +48,10 @@ export function Layout() {
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
-                        <div className="flex items-center gap-1 text-[15px] cursor-pointer text-slate-600 hover:text-slate-900">
+                        <Link to="/contracts" className={getLinkClass('/contracts')}>
                             Contracts
-                            <span className="text-[10px] ml-0.5">▼</span>
-                        </div>
+                            <span className="text-[10px] ml-1">▼</span>
+                        </Link>
                         <div className="flex items-center gap-1 text-[15px] cursor-pointer text-slate-600 hover:text-slate-900">
                             Attendance
                         </div>

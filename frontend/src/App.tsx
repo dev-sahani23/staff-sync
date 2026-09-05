@@ -5,6 +5,8 @@ import { Login } from './modules/auth/pages/Login';
 import { Layout } from './components/layout/Layout';
 import { Employees } from './modules/employee/pages/Employees';
 import { EmployeeDetail } from './modules/employee/pages/EmployeeDetail';
+import { Contracts } from './modules/contract/pages/Contracts';
+import { ContractDetail } from './modules/contract/pages/ContractDetail';
 
 function App() {
   return (
@@ -21,6 +23,8 @@ function App() {
               {/* Can specify roles e.g. roles={['Admin', 'HR Manager']} for specific routes */}
               <Route path="/dashboard" element={<Employees />} />
               <Route path="/employee/:id" element={<EmployeeDetail />} />
+              <Route path="/contracts" element={<Contracts />} />
+              <Route path="/contract/:id" element={<ContractDetail />} />
             </Route>
           </Route>
 
