@@ -37,9 +37,19 @@ const columns: ColumnDef<Employee>[] = [
 export function Employees() {
     const navigate = useNavigate();
     const [view, setView] = useState<'kanban' | 'list'>('kanban');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
 
     // Retrieve from our globally simulated store! 
     const employees = mockEmployees;
+
+    // Filter by search term natively
+    const filteredEmployees = employees.filter(emp => emp.name.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    // Paginate results
+    const ITEMS_PER_PAGE = 8;
+    const totalPages = Math.max(1, Math.ceil(filteredEmployees.length / ITEMS_PER_PAGE));
+    const paginatedEmployees = filteredEmployees.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
     return (
         <div className="w-full font-sans">
@@ -56,6 +66,8 @@ export function Employees() {
                                 <Search className="absolute left-3 top-2.5 h-5 w-5 text-slate-400" />
                                 <Input
                                     placeholder="Search employees..."
+                                    value={searchTerm}
+                                    onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
                                     className="pl-10 h-10 w-full rounded-xl border-slate-200 focus-visible:ring-1 focus-visible:ring-blue-500 text-[15px]"
                                 />
                             </div>
@@ -80,8 +92,8 @@ export function Employees() {
             />
 
             {view === 'kanban' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-12">
-                    {employees.map(emp => (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6">
+                    {paginatedEmployees.map(emp => (
                         <div
                             key={emp.id}
                             onClick={() => navigate(`/employee/${emp.id}`)}
@@ -110,13 +122,45 @@ export function Employees() {
             )}
 
             {view === 'list' && (
-                <div className="pb-12">
+                <div className="pb-6">
                     <DataTable
                         columns={columns}
-                        data={employees}
-                        searchKey="name"
+                        data={paginatedEmployees}
                         onRowClick={(emp) => navigate(`/employee/${emp.id}`)}
                     />
+                </div>
+            )}
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 pb-12 pt-4">
+                    <Button
+                        variant="outline"
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                        className="rounded-lg h-9 px-3 text-sm text-slate-600 shadow-sm"
+                    >
+                        Previous
+                    </Button>
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+                        <button
+                            key={pageNum}
+                            onClick={() => setCurrentPage(pageNum)}
+                            className={`w-9 h-9 rounded-lg text-sm font-medium transition-colors ${currentPage === pageNum ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100'}`}
+                        >
+                            {pageNum}
+                        </button>
+                    ))}
+
+                    <Button
+                        variant="outline"
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        disabled={currentPage === totalPages}
+                        className="rounded-lg h-9 px-3 text-sm text-slate-600 shadow-sm"
+                    >
+                        Next
+                    </Button>
                 </div>
             )}
 

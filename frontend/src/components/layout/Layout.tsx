@@ -52,9 +52,9 @@ export function Layout() {
                             Contracts
                             <span className="text-[10px] ml-1">▼</span>
                         </Link>
-                        <div className="flex items-center gap-1 text-[15px] cursor-pointer text-slate-600 hover:text-slate-900">
+                        <Link to="/attendance" className={getLinkClass('/attendance')}>
                             Attendance
-                        </div>
+                        </Link>
                         <div className="flex items-center gap-1 text-[15px] cursor-pointer text-slate-600 hover:text-slate-900">
                             Time Off
                             <span className="text-[10px] ml-0.5">▼</span>

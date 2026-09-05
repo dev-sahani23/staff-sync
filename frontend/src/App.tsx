@@ -7,6 +7,7 @@ import { Employees } from './modules/employee/pages/Employees';
 import { EmployeeDetail } from './modules/employee/pages/EmployeeDetail';
 import { Contracts } from './modules/contract/pages/Contracts';
 import { ContractDetail } from './modules/contract/pages/ContractDetail';
+import { Attendance } from './modules/attendance/pages/Attendance';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
               <Route path="/employee/:id" element={<EmployeeDetail />} />
               <Route path="/contracts" element={<Contracts />} />
               <Route path="/contract/:id" element={<ContractDetail />} />
+              <Route path="/attendance" element={<Attendance />} />
             </Route>
           </Route>
 
