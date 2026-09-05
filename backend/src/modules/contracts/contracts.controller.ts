@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import { ContractsService } from './contracts.service';
+import type { Request, Response } from 'express';
+import { ContractsService } from './contracts.service.js';
 
 const contractsService = new ContractsService();
 
@@ -24,7 +24,7 @@ export class ContractsController {
 
   async update(req: Request, res: Response): Promise<void> {
     try {
-      const contract = await contractsService.updateContract(req.params.id, req.body);
+      const contract = await contractsService.updateContract(req.params.id as string, req.body);
       res.json(contract);
     } catch (error: any) {
       res.status(400).json({ statusCode: 400, message: error.message, error: 'Bad Request' });
@@ -33,7 +33,7 @@ export class ContractsController {
 
   async activate(req: Request, res: Response): Promise<void> {
     try {
-      const contract = await contractsService.activateContract(req.params.id);
+      const contract = await contractsService.activateContract(req.params.id as string);
       res.json(contract);
     } catch (error: any) {
       res.status(400).json({ statusCode: 400, message: error.message, error: 'Bad Request' });

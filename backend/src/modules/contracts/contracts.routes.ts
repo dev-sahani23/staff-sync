@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { ContractsController } from './contracts.controller';
-import { authenticateJWT, authorizeRoles } from '../../middlewares/auth.middleware';
+import { ContractsController } from './contracts.controller.js';
+import { authenticateJWT, authorizeRoles } from '../../middlewares/auth.middleware.js';
 
 const router = Router();
 const contractsController = new ContractsController();

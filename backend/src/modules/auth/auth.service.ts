@@ -1,4 +1,4 @@
-import prisma from '../../prisma/index.ts';
+import prisma from '../../prisma/index.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { Role } from '@prisma/client';
@@ -17,7 +17,7 @@ export class AuthService {
         email,
         passwordHash,
         role,
-        employeeId
+        ...(employeeId !== undefined && { employeeId })
       }
     });
 

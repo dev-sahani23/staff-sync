@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import { EmployeesService } from './employees.service';
+import type { Request, Response } from 'express';
+import { EmployeesService } from './employees.service.js';
 
 const employeesService = new EmployeesService();
 
@@ -24,7 +24,7 @@ export class EmployeesController {
 
   async getById(req: Request, res: Response): Promise<void> {
     try {
-      const employee = await employeesService.getEmployeeById(req.params.id);
+      const employee = await employeesService.getEmployeeById(req.params.id as string);
       res.json(employee);
     } catch (error: any) {
       res.status(404).json({ statusCode: 404, message: error.message, error: 'Not Found' });
@@ -33,7 +33,7 @@ export class EmployeesController {
 
   async update(req: Request, res: Response): Promise<void> {
     try {
-      const employee = await employeesService.updateEmployee(req.params.id, req.body);
+      const employee = await employeesService.updateEmployee(req.params.id as string, req.body);
       res.json(employee);
     } catch (error: any) {
       res.status(400).json({ statusCode: 400, message: error.message, error: 'Bad Request' });
@@ -42,7 +42,7 @@ export class EmployeesController {
 
   async getContracts(req: Request, res: Response): Promise<void> {
     try {
-      const contracts = await employeesService.getEmployeeContracts(req.params.id);
+      const contracts = await employeesService.getEmployeeContracts(req.params.id as string);
       res.json(contracts);
     } catch (error: any) {
       res.status(500).json({ statusCode: 500, message: error.message, error: 'Internal Server Error' });
@@ -51,7 +51,7 @@ export class EmployeesController {
 
   async getAttendance(req: Request, res: Response): Promise<void> {
     try {
-      const attendance = await employeesService.getEmployeeAttendance(req.params.id);
+      const attendance = await employeesService.getEmployeeAttendance(req.params.id as string);
       res.json(attendance);
     } catch (error: any) {
       res.status(500).json({ statusCode: 500, message: error.message, error: 'Internal Server Error' });
@@ -60,7 +60,7 @@ export class EmployeesController {
 
   async getTimeOff(req: Request, res: Response): Promise<void> {
     try {
-      const timeoff = await employeesService.getEmployeeTimeOffRequests(req.params.id);
+      const timeoff = await employeesService.getEmployeeTimeOffRequests(req.params.id as string);
       res.json(timeoff);
     } catch (error: any) {
       res.status(500).json({ statusCode: 500, message: error.message, error: 'Internal Server Error' });
@@ -69,7 +69,7 @@ export class EmployeesController {
 
   async getAllocations(req: Request, res: Response): Promise<void> {
     try {
-      const allocations = await employeesService.getEmployeeAllocations(req.params.id);
+      const allocations = await employeesService.getEmployeeAllocations(req.params.id as string);
       res.json(allocations);
     } catch (error: any) {
       res.status(500).json({ statusCode: 500, message: error.message, error: 'Internal Server Error' });

@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { TimeOffController } from './timeoff.controller';
-import { authenticateJWT, authorizeRoles, employeeScope } from '../../middlewares/auth.middleware';
+import { TimeOffController } from './timeoff.controller.js';
+import { authenticateJWT, authorizeRoles, employeeScope } from '../../middlewares/auth.middleware.js'
 
 const router = Router();
 const timeOffController = new TimeOffController();
