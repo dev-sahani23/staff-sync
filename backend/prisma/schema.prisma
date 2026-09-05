@@ -1,0 +1,276 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  EMPLOYEE
+  HR_MANAGER
+  HR_PAYROLL_USER
+  HR_PAYROLL_MANAGER
+  ADMIN
+}
+
+enum EmployeeStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum ContractStatus {
+  DRAFT
+  ACTIVE
+  EXPIRED
+  TERMINATED
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  EXCEPTION
+  CORRECTED
+}
+
+enum LeaveRequestStatus {
+  PENDING
+  APPROVED
+  REFUSED
+}
+
+enum RuleCategory {
+  BASIC
+  ALLOWANCE
+  DEDUCTION
+  GROSS
+  NET
+}
+
+enum ComputeMethod {
+  FIXED
+  PERCENTAGE
+  FORMULA
+}
+
+enum PayrunStatus {
+  DRAFT
+  COMPUTED
+  VALIDATED
+  PAID
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(EMPLOYEE)
+  employeeId   String?  @unique
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  employee     Employee? @relation(fields: [employeeId], references: [id])
+}
+
+model Employee {
+  id            String         @id @default(uuid())
+  firstName     String
+  lastName      String
+  email         String         @unique
+  phone         String?
+  jobPosition   String?
+  department    String?
+  status        EmployeeStatus @default(ACTIVE)
+  managerId     String?
+  scheduleId    String?
+  bankName      String?
+  accountNumber String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  user             User?
+  manager          Employee?         @relation("EmployeeToManager", fields: [managerId], references: [id])
+  subordinates     Employee[]        @relation("EmployeeToManager")
+  schedule         WorkingSchedule?  @relation(fields: [scheduleId], references: [id])
+  contracts        Contract[]
+  attendance       Attendance[]
+  leaveAllocations LeaveAllocation[]
+  leaveRequests    LeaveRequest[]
+  payslips         Payslip[]
+}
+
+model WorkingSchedule {
+  id        String         @id @default(uuid())
+  name      String
+  type      String?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  employees Employee[]
+  lines     ScheduleLine[]
+}
+
+model ScheduleLine {
+  id                String          @id @default(uuid())
+  workingScheduleId String
+  dayOfWeek         Int             // 1=Monday, 7=Sunday
+  startTime         String          // e.g. "09:00"
+  endTime           String          // e.g. "17:00"
+  breakMinutes      Int             @default(60)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  workingSchedule WorkingSchedule @relation(fields: [workingScheduleId], references: [id], onDelete: Cascade)
+}
+
+model Contract {
+  id                String         @id @default(uuid())
+  employeeId        String
+  salaryStructureId String
+  wage              Float
+  startDate         DateTime
+  endDate           DateTime?
+  status            ContractStatus @default(DRAFT)
+  department        String?
+  jobPosition       String?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  employee        Employee        @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  salaryStructure SalaryStructure @relation(fields: [salaryStructureId], references: [id])
+  payslips        Payslip[]
+}
+
+model Attendance {
+  id              String           @id @default(uuid())
+  employeeId      String
+  date            DateTime
+  checkIn         DateTime?
+  checkOut        DateTime?
+  workedHours     Float?
+  status          AttendanceStatus @default(PRESENT)
+  correctedBy     String?          // User ID or Name
+  correctionNotes String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+}
+
+model TimeOffType {
+  id                 String   @id @default(uuid())
+  name               String
+  unit               String   // "DAYS" or "HOURS"
+  requiresAllocation Boolean  @default(true)
+  isPayrollIntegrated Boolean @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  allocations LeaveAllocation[]
+  requests    LeaveRequest[]
+}
+
+model LeaveAllocation {
+  id            String   @id @default(uuid())
+  employeeId    String
+  timeOffTypeId String
+  allocated     Float    @default(0)
+  taken         Float    @default(0)
+  // remaining is computed as allocated - taken
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  employee    Employee    @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  timeOffType TimeOffType @relation(fields: [timeOffTypeId], references: [id])
+}
+
+model LeaveRequest {
+  id            String             @id @default(uuid())
+  employeeId    String
+  timeOffTypeId String
+  startDate     DateTime
+  endDate       DateTime
+  duration      Float
+  status        LeaveRequestStatus @default(PENDING)
+  notes         String?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  employee    Employee    @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  timeOffType TimeOffType @relation(fields: [timeOffTypeId], references: [id])
+}
+
+model SalaryStructure {
+  id        String   @id @default(uuid())
+  name      String
+  status    String   @default("ACTIVE")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  contracts Contract[]
+  rules     SalaryRule[]
+  payruns   Payrun[]
+}
+
+model SalaryRule {
+  id                String        @id @default(uuid())
+  salaryStructureId String
+  code              String
+  name              String
+  category          RuleCategory
+  sequence          Int
+  computeMethod     ComputeMethod
+  amount            Float?
+  baseCode          String?
+  formula           String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  salaryStructure SalaryStructure @relation(fields: [salaryStructureId], references: [id], onDelete: Cascade)
+  payslipLines    PayslipLine[]
+}
+
+model Payrun {
+  id                String       @id @default(uuid())
+  name              String
+  salaryStructureId String
+  periodStart       DateTime
+  periodEnd         DateTime
+  status            PayrunStatus @default(DRAFT)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  salaryStructure SalaryStructure @relation(fields: [salaryStructureId], references: [id])
+  payslips        Payslip[]
+}
+
+model Payslip {
+  id          String   @id @default(uuid())
+  payrunId    String
+  employeeId  String
+  contractId  String
+  workedDays  Float
+  warnings    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  payrun   Payrun        @relation(fields: [payrunId], references: [id], onDelete: Cascade)
+  employee Employee      @relation(fields: [employeeId], references: [id])
+  contract Contract      @relation(fields: [contractId], references: [id])
+  lines    PayslipLine[]
+}
+
+model PayslipLine {
+  id           String   @id @default(uuid())
+  payslipId    String
+  salaryRuleId String
+  label        String
+  amount       Float
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  payslip    Payslip    @relation(fields: [payslipId], references: [id], onDelete: Cascade)
+  salaryRule SalaryRule @relation(fields: [salaryRuleId], references: [id])
+}
