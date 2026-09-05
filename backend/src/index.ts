@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import morgan from 'morgan';
 import swaggerUi from 'swagger-ui-express';
 import apiRoutes from './routes/index.ts';
 import { swaggerDocument } from './docs/swagger.ts';
@@ -12,6 +13,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// HTTP Request Logging & Performance Diagnostics via Morgan
+app.use(morgan('dev'));
 
 // Interactive Swagger OpenAPI Documentation
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
