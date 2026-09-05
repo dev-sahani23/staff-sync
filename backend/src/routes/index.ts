@@ -5,10 +5,10 @@ import employeesRoutes from '../modules/employees/employees.routes.ts';
 import contractsRoutes from '../modules/contracts/contracts.routes.ts';
 import attendanceRoutes from '../modules/attendance/attendance.routes.ts';
 import timeOffRoutes from '../modules/timeoff/timeoff.routes.ts';
-import salaryStructureRoutes from '../modules/salary-rules/salary-rules.routes.ts';
-import payrunsRoutes from '../modules/payruns/payruns.routes.ts';
-import payslipsRoutes from '../modules/payslips/payslips.routes.ts';
-import dashboardRoutes from '../modules/dashboard/dashboard.routes.ts';
+import salaryStructureRoutes from "../modules/salary-rules/salary-rules.routes.ts"
+import payrunsRoutes from "../modules/payruns/payruns.routes.ts"
+import payslipsRoutes from "../modules/payslips/payslips.routes.ts"
+import dashboardRoutes from "../modules/dashboard/dashboard.routes.ts"
 
 const router = Router();
 
