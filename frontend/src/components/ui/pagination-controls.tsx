@@ -36,7 +36,7 @@ export function PaginationControls({ currentPage, totalPages, onPageChange }: Pa
                 disabled={currentPage === totalPages}
                 className="rounded-lg h-9 px-3 text-sm text-slate-600 shadow-sm"
             >
-                Next
+                Nextgggggggggg
             </Button>
         </div>
     );
