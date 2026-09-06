@@ -1,4 +1,4 @@
-import type { Response } from 'express';
+import type { Request,Response } from 'express';
 import { EmployeesService } from './employees.service.js';
 import prisma from '../../prisma/index.js';
 import type { AuthRequest } from '../../middlewares/auth.middleware.js';
