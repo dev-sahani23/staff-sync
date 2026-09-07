@@ -1,12 +1,11 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import morgan from 'morgan';
 import swaggerUi from 'swagger-ui-express';
 import apiRoutes from './routes/index.ts';
 import { swaggerDocument } from './docs/swagger.ts';
-
-dotenv.config();
+import prisma from './prisma/index.ts';
 
 const app = express();
 
@@ -27,7 +26,19 @@ app.get('/', (_req, res) => {
     status: 'StaffSync API Running',
     documentation: '/api/docs',
     health: '/api/health',
+    dbStatus: '/api/db-status',
   });
+});
+
+app.get('/api/db-status', async (_req, res) => {
+  const dbUrl = process.env.DATABASE_URL || '';
+  const maskedUrl = dbUrl ? dbUrl.replace(/:[^:@]+@/, ':****@') : 'NOT_SET';
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({ status: 'connected', url: maskedUrl });
+  } catch (err: any) {
+    res.status(500).json({ status: 'error', url: maskedUrl, error: err.message });
+  }
 });
 
 const PORT = process.env.PORT || 5000;
