@@ -1,4 +1,4 @@
-import { api } from '@/lib/api';
+import { api, API_BASE_URL } from '@/lib/api';
 import type { Payslip } from '@/types';
 
 export const payslipsApi = {
@@ -67,7 +67,7 @@ export const payslipsApi = {
 
   getPdfUrl: (id: string): string => {
     const token = localStorage.getItem('token');
-    return `${import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:3000/api'}/payslips/${id}/pdf?token=${token}`;
+    return `${API_BASE_URL}/payslips/${id}/pdf?token=${token}`;
   },
 
   downloadPdf: async (id: string): Promise<Blob> => {
