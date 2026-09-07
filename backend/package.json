@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "prisma generate",
-    "start": "tsx src/index.ts",
-    "db:push": "prisma db push",
+    "build": "npx prisma generate",
+    "start": "npx tsx src/index.ts",
+    "db:push": "npx prisma db push",
     "db:seed": "tsx prisma/seed.ts",
     "seed": "tsx prisma/seed.ts",
     "test:engine": "tsx src/modules/salary-engine/salary-engine.test.ts"
