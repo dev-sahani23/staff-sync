@@ -2,7 +2,6 @@ import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { payslipsApi } from '@/services/payslips';
-import { payrunsApi } from '@/services/payruns';
 import { DataTable, type Column } from '@/components/ui/DataTable';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Breadcrumb } from '@/components/layout/Breadcrumb';

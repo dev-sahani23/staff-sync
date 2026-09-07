@@ -212,10 +212,13 @@ export interface Payrun {
     id: string;
     name: string;
   };
+  salaryStructureName?: string;
   payslips?: Payslip[];
   _count?: {
     payslips: number;
   };
+  totalPayslips?: number;
+  warningsCount?: number;
 }
 
 export interface PayslipLine {
