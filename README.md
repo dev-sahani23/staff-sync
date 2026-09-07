@@ -1,5 +1,3 @@
-![header](https://capsule-render.vercel.app/api?type=waving&color=0:0b0f19,100:336791&height=200&section=header&text=PeoplePay360&fontSize=60&fontColor=ffffff&animation=fadeIn&fontAlignY=38&desc=Integrated%20HR%20%26%20Payroll%20Operations%20Platform&descAlignY=58&descSize=18)
-
 <div align="center">
 
 ![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&pause=1200&color=61DAFB&center=true&vCenter=true&width=780&lines=Employee+Lifecycle+%E2%86%92+Contracts+%E2%86%92+Attendance+%E2%86%92+Payroll;Two-Step+Payrun+Wizard+with+Live+Validation+Warnings;Rule-Based+Salary+Engine+%2B+PDF+Payslips+%2B+Bulk+Email;Role-Based+Access+Control+for+5+Distinct+User+Roles)
