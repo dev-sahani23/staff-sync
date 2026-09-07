@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Get base URL from environment variables, fallback to mock server if not present
-const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const baseURL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 const apiClient = axios.create({
     baseURL,

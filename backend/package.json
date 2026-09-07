@@ -5,7 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc",
+    "build": "prisma generate",
+    "start": "tsx src/index.ts",
+    "db:push": "prisma db push",
+    "db:seed": "tsx prisma/seed.ts",
     "seed": "tsx prisma/seed.ts",
     "test:engine": "tsx src/modules/salary-engine/salary-engine.test.ts"
   },
@@ -26,8 +29,10 @@
     "mathjs": "^15.2.0",
     "morgan": "^1.12.0",
     "nodemailer": "^10.0.0",
+    "prisma": "^6.12.0",
     "puppeteer": "^25.10.0",
     "swagger-ui-express": "^5.0.1",
+    "tsx": "^4.23.13",
     "zod": "^4.5.4"
   },
   "devDependencies": {
@@ -40,9 +45,7 @@
     "@types/nodemailer": "^8.0.1",
     "@types/swagger-ui-express": "^4.1.8",
     "nodemon": "^3.1.14",
-    "prisma": "^6.12.0",
     "ts-node": "^10.9.2",
-    "tsx": "^4.23.13",
     "typescript": "^7.0.2"
   }
 }

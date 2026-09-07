@@ -67,7 +67,7 @@ export const payslipsApi = {
 
   getPdfUrl: (id: string): string => {
     const token = localStorage.getItem('token');
-    return `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'}/payslips/${id}/pdf?token=${token}`;
+    return `${import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:3000/api'}/payslips/${id}/pdf?token=${token}`;
   },
 
   downloadPdf: async (id: string): Promise<Blob> => {

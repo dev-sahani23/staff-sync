@@ -23,4 +23,8 @@ router.use('/payruns', payrunsRoutes);
 router.use('/payslips', payslipsRoutes);
 router.use('/dashboard', dashboardRoutes);
 
+router.get('/health', (_req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 export default router;

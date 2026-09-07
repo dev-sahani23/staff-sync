@@ -22,6 +22,14 @@ app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use('/api', apiRoutes);
 
+app.get('/', (_req, res) => {
+  res.json({
+    status: 'StaffSync API Running',
+    documentation: '/api/docs',
+    health: '/api/health',
+  });
+});
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
