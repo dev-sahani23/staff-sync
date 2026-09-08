@@ -60,8 +60,11 @@ export class PayslipsController {
   async getAllPayslips(req: AuthRequest, res: Response): Promise<void> {
     try {
       const { payrunId, employeeId } = req.query;
+
       const targetEmployeeId =
-        req.user?.role === 'EMPLOYEE' ? req.user.employeeId : (employeeId as string | undefined);
+        req.user?.role === 'EMPLOYEE'
+          ? req.user.employeeId ?? undefined
+          : (employeeId as string | undefined);
 
       const payslips = await payslipsService.getAllPayslips({
         payrunId: payrunId as string | undefined,
@@ -106,6 +109,7 @@ export class PayslipsController {
       res.setHeader('Content-Length', buffer.length);
       res.status(200).send(buffer);
     } catch (error: any) {
+      console.error('[Payslip PDF Error]:', error);
       res.status(400).json({
         statusCode: 400,
         message: error.message || 'Failed to generate payslip PDF',
