@@ -6,7 +6,8 @@ const baseURL = cleanBaseUrl.endsWith('/api') ? cleanBaseUrl : `${cleanBaseUrl}/
 
 export const api = axios.create({
     baseURL,
-    timeout: 10000,
+    timeout: 60000, // 60s — tolerates Render free-tier cold starts (30–60s)
+    // TODO: consolidate this into the single shared api client in @/lib/api.ts
     headers: {
         'Content-Type': 'application/json',
     }

@@ -18,6 +18,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Pre-warm the Render backend while the user types credentials.
+    // Uses raw fetch() to avoid axios interceptors. Fire-and-forget.
+    const rawBaseUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+    const cleanBase = rawBaseUrl.replace(/\/+$/, '');
+    const healthUrl = cleanBase.endsWith('/api') ? `${cleanBase}/health` : `${cleanBase}/api/health`;
+    fetch(healthUrl, { method: 'GET', mode: 'cors' }).catch(() => {});
+
     try {
       const storedToken = localStorage.getItem('token');
       const storedUser = localStorage.getItem('user');

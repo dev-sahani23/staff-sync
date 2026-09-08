@@ -9,7 +9,13 @@ import prisma from './prisma/index.ts';
 
 const app = express();
 
-app.use(cors());
+// CORS — use explicit origin in production (set CORS_ORIGIN in Render dashboard too)
+const corsOrigin = process.env.CORS_ORIGIN || '*';
+app.use(cors({
+  origin: corsOrigin === '*' ? '*' : corsOrigin.split(',').map(s => s.trim()),
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

@@ -126,6 +126,16 @@ export const Login: React.FC = () => {
               {isLoading ? 'Authenticating...' : 'Sign In'}
               <ArrowRight className="w-4 h-4 stroke-[2.5]" />
             </button>
+
+            {/* Cold-start loading indicator */}
+            {isLoading && (
+              <div className="mt-3 flex items-center gap-2 justify-center text-xs text-gray-500 animate-pulse">
+                <div className="w-2 h-2 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: '0ms' }} />
+                <div className="w-2 h-2 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: '150ms' }} />
+                <div className="w-2 h-2 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+                <span>Connecting to server, this may take up to a minute on first load…</span>
+              </div>
+            )}
           </form>
 
           {/* Quick demo account filler buttons */}

@@ -1,4 +1,4 @@
-import { api } from '@/lib/api';
+import { api, withColdStartRetry } from '@/lib/api';
 import type { User, Role } from '@/types';
 
 export interface LoginPayload {
@@ -21,11 +21,13 @@ export interface RegisterPayload {
 
 export const authApi = {
   login: async (payload: LoginPayload): Promise<LoginResponse> => {
-    const res = await api.post<LoginResponse>('/auth/login', {
-      email: payload.email,
-      password: payload.password || payload.passwordRaw,
+    return withColdStartRetry(async () => {
+      const res = await api.post<LoginResponse>('/auth/login', {
+        email: payload.email,
+        password: payload.password || payload.passwordRaw,
+      });
+      return res.data;
     });
-    return res.data;
   },
 
   register: async (payload: RegisterPayload): Promise<User> => {
